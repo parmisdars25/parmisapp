@@ -1,5 +1,5 @@
-// ==================== Service Worker — ParmisApp (نسخه ۲۰ — باز شدن آنی از کش + آپدیت پس‌زمینه) ====================
-const CACHE_NAME = 'parmisapp-static-v20-0';
+// ==================== Service Worker — ParmisApp (نسخه ۲۰.۱ — آماده برای PWABuilder و APK اندروید) ====================
+const CACHE_NAME = 'parmisapp-static-v20-1';
 const CORE_ASSETS = [
     './',
     './index.html',
@@ -9,7 +9,10 @@ const CORE_ASSETS = [
     './game-draw.html',
     './game-draw.css',
     './game-draw.js',
-    './manifest.json'
+    './manifest.json',
+    './icon-192.png',
+    './icon-512.png',
+    './icon-maskable-512.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -42,6 +45,8 @@ self.addEventListener('message', (event) => {
         const title = data.title || 'پیام جدید 💙';
         const options = {
             body: data.body || '',
+            icon: './icon-192.png',
+            badge: './icon-192.png',
             dir: 'rtl',
             lang: 'fa',
             tag: data.tag || 'parmis-notif',
@@ -74,7 +79,7 @@ self.addEventListener('notificationclick', (event) => {
 });
 
 // استراتژی باز شدن آنی (Stale-While-Revalidate) برای فایل‌های استاتیک همین دامنه
-// هیچ دخالتی در درخواست‌های Supabase، WebSocket و CDNها ندارد.
+// بدون خطای waitUntil و بدون هیچ دخالتی در درخواست‌های Supabase، WebSocket و CDNها
 self.addEventListener('fetch', (event) => {
     const req = event.request;
     if (req.method !== 'GET') return;
@@ -88,25 +93,24 @@ self.addEventListener('fetch', (event) => {
 
     if (url.origin !== self.location.origin) return;
 
+    const networkUpdate = fetch(req)
+        .then((networkRes) => {
+            if (networkRes && networkRes.ok && networkRes.type === 'basic') {
+                const copy = networkRes.clone();
+                caches.open(CACHE_NAME).then((cache) => cache.put(req, copy)).catch(() => {});
+            }
+            return networkRes;
+        })
+        .catch(() => null);
+
+    event.waitUntil(networkUpdate);
+
     event.respondWith(
         caches.open(CACHE_NAME).then(async (cache) => {
             const cachedRes = await cache.match(req);
+            if (cachedRes) return cachedRes;
 
-            const networkPromise = fetch(req)
-                .then((networkRes) => {
-                    if (networkRes && networkRes.ok && networkRes.type === 'basic') {
-                        cache.put(req, networkRes.clone()).catch(() => {});
-                    }
-                    return networkRes;
-                })
-                .catch(() => null);
-
-            if (cachedRes) {
-                event.waitUntil(networkPromise);
-                return cachedRes;
-            }
-
-            const networkRes = await networkPromise;
+            const networkRes = await networkUpdate;
             if (networkRes) return networkRes;
 
             if (req.mode === 'navigate') {

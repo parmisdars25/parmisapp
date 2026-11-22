@@ -10,9 +10,17 @@
     <meta name="theme-color" content="#4f46e5">
     <title>Private Space — نسخه ۲۰</title>
 
-    <!-- مانیفست و آیکون اپلیکیشن بومی (PWA) -->
+    <!-- مانیفست و آیکون‌های PNG اپلیکیشن بومی (PWA & APK) -->
     <link rel="manifest" href="manifest.json">
-    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%23ec4899'/></linearGradient></defs><rect width='180' height='180' rx='42' fill='url(%23bg)'/><path d='M90 132 C90 132 48 104 48 72 C48 56 61 44 76 44 C85 44 90 50 90 50 C90 50 95 44 104 44 C119 44 132 56 132 72 C132 104 90 132 90 132 Z' fill='%23ffffff'/></svg>">
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-maskable-512.png">
+    <script>
+        window.__earlyInstallPrompt = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            window.__earlyInstallPrompt = e;
+        });
+    </script>
 
     <!-- پیش‌اتصال سریع برای کاهش تاخیر اولیه -->
     <link rel="preconnect" href="https://cknciitavsagmhfnaiig.supabase.co" crossorigin>
