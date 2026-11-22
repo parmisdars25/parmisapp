@@ -6,15 +6,18 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="theme-color" content="#4f46e5">
-    <title>پیکاسوی دونفره 🎨 — نسخه ۲۰</title>
+    <title>نقاشی — نسخه ۲۰</title>
+
+    <!-- آیکون‌های برنامه -->
+    <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
+    <link rel="apple-touch-icon" sizes="512x512" href="icon-maskable-512.png">
 
     <!-- پیش‌اتصال سریع برای کاهش تاخیر اولیه -->
     <link rel="preconnect" href="https://cknciitavsagmhfnaiig.supabase.co" crossorigin>
     <link rel="dns-prefetch" href="https://cknciitavsagmhfnaiig.supabase.co">
     <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 
-    <!-- فونت وزیرمتن و آیکون‌ها -->
-    <!-- فونت غیرمسدودکننده (در صورت کندی CDN هیچ تاخیری در باز شدن صفحه ایجاد نمی‌کند) -->
+    <!-- فونت غیرمسدودکننده و آیکون‌ها -->
     <link rel="stylesheet" href="https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" media="print" onload="this.media='all'">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -44,7 +47,7 @@
                 <i class="fa-solid fa-arrow-right"></i>
             </button>
             <div class="game-title-box">
-                <h1 class="game-main-title">پیکاسوی دونفره 🎨</h1>
+                <h1 class="game-main-title">نقاشی</h1>
                 <div class="partner-live-badge" id="partnerPresenceBadge">
                     <span class="presence-dot" id="partnerPresenceDot"></span>
                     <span id="partnerPresenceText">در حال بررسی...</span>
@@ -83,7 +86,7 @@
         <section class="leaderboard-card">
             <div class="leaderboard-header">
                 <i class="fa-solid fa-trophy"></i>
-                <span>تابلو افتخارات کل تاریخ ما</span>
+                <span>تابلو افتخارات کل تاریخمون</span>
             </div>
             <div class="leaderboard-body">
                 <div class="champ-box">
@@ -94,7 +97,7 @@
                     <span class="champ-name">مهدی</span>
                     <div class="champ-wins-pill">
                         <strong id="totalWinsMahdi">0</strong>
-                        <span>بُرد</span>
+                        <span>برد</span>
                     </div>
                 </div>
 
@@ -111,7 +114,7 @@
                     <span class="champ-name">پارمیس</span>
                     <div class="champ-wins-pill">
                         <strong id="totalWinsParmis">0</strong>
-                        <span>بُرد</span>
+                        <span>برد</span>
                     </div>
                 </div>
             </div>
@@ -121,7 +124,7 @@
         <section class="ready-status-card">
             <div class="ready-card-header">
                 <i class="fa-solid fa-user-check"></i>
-                <span>وضعیت آمادگی بازیکنان برای شروع</span>
+                <span>وضعیت امادگی برای شروع</span>
             </div>
             <div class="ready-players-row">
                 <div class="ready-player-box" id="readyBoxMahdi">
@@ -140,7 +143,7 @@
                 </div>
             </div>
             <p class="ready-helper-note" id="readyHelperNote">
-                وقتی هر دو نفر وارد این صفحه بشن و «آماده‌ام» رو بزنن، بازی خودکار شروع میشه! 🚀
+                وقتی هر دوتامون وارد این صفحه بشیم و جفتمون دکمه اماده امو بزنیم بازی شروع میشه نفسم
             </p>
         </section>
 
@@ -162,7 +165,7 @@
                     </button>
                     <button type="button" class="option-pill" data-points="50" onclick="selectTargetPoints(50)">
                         <strong>۵۰ امتیازی</strong>
-                        <small>ماراتن نفس‌گیر</small>
+                        <small>ماراتن نفس‌ گیر</small>
                     </button>
                 </div>
             </div>
@@ -189,13 +192,13 @@
         <div class="lobby-actions">
             <button type="button" id="toggleReadyBtn" class="ready-toggle-btn" onclick="toggleMyReadyState()">
                 <i class="fa-solid fa-circle-check" id="readyBtnIcon"></i>
-                <span id="readyBtnText">آماده‌ام! (Ready)</span>
+                <span id="readyBtnText">اماده ام</span>
             </button>
 
             <div id="activeMatchResumeBar" class="active-match-resume-bar" style="display: none;">
                 <button type="button" class="resume-match-btn" onclick="resumeExistingMatch()">
                     <i class="fa-solid fa-play"></i>
-                    <span id="resumeMatchText">ورود به بازیِ در حال اجرا</span>
+                    <span id="resumeMatchText">ورود به بازیه در حال اجرا</span>
                 </button>
                 <button type="button" class="terminate-match-btn" onclick="endCurrentMatch()" title="بستن بازی قبلی">
                     <i class="fa-solid fa-trash-can"></i>
@@ -229,7 +232,7 @@
             <!-- بنر مخصوص نقاش -->
             <div id="drawerRoleBanner" class="role-banner drawer-banner" style="display: none;">
                 <div class="banner-right">
-                    <span class="role-tag">نوبت نقاشی توئه 🎨</span>
+                    <span class="role-tag">نوبت نقاشی توئه بچمم </span>
                     <div class="secret-word-line">
                         <span>کلمه:</span>
                         <strong id="drawerSecretWord">...</strong>
@@ -250,7 +253,7 @@
             <!-- بنر مخصوص حدس‌زننده -->
             <div id="guesserRoleBanner" class="role-banner guesser-banner" style="display: none;">
                 <div class="banner-right">
-                    <span class="role-tag" id="guesserStatusTitle">پارتنرت داره می‌کشه 🤔</span>
+                    <span class="role-tag" id="guesserStatusTitle"> داره نقاشی میکشهه </span>
                     <div class="word-mask-box">
                         <span id="wordMaskDisplay" class="word-mask-letters">_ _ _ _ _</span>
                         <span id="wordLengthBadge" class="word-length-pill">۵ حرفی</span>
@@ -313,7 +316,7 @@
                     <button type="button" class="tool-action-btn active" id="penToolBtn" onclick="activatePenTool()" title="قلم نقاشی">
                         <i class="fa-solid fa-paintbrush"></i>
                     </button>
-                    <button type="button" class="tool-action-btn" id="eraserToolBtn" onclick="activateEraserTool()" title="پاک‌کن">
+                    <button type="button" class="tool-action-btn" id="eraserToolBtn" onclick="activateEraserTool()" title="پاک‌ کن">
                         <i class="fa-solid fa-eraser"></i>
                     </button>
                     <button type="button" class="tool-action-btn" onclick="undoLastStroke()" title="برگشت آخرین خط">
@@ -329,13 +332,13 @@
         <!-- ==================== باکس لیست دائمی حدس‌ها (مشترک برای هر دو نفر: نقاش و حدس‌زننده) ==================== -->
         <section class="guesses-feed-section" id="guessesFeedSection">
             <div class="guesses-feed-header">
-                <span><i class="fa-regular fa-comments"></i> لیست حدس‌های این راند</span>
+                <span><i class="fa-regular fa-comments"></i> لیست حدس‌ های این راند</span>
                 <span id="guessesCountBadge" class="guesses-count-badge">۰ حدس</span>
             </div>
 
             <!-- لیست اسکرول‌شونده دائمی حدس‌ها -->
             <div class="guesses-feed-list" id="guessesFeedList">
-                <div class="guesses-empty-text">هنوز حدسی زده نشده... منتظر اولین حدس! 🎯</div>
+                <div class="guesses-empty-text">هنوز حدسی زده نشده</div>
             </div>
 
             <!-- کادر تایپ حدس (فقط برای حدس‌زننده فعال و نمایان است) -->
@@ -356,7 +359,7 @@
 <div id="roundResultModal" class="game-modal-overlay">
     <div class="game-modal-card">
         <div class="round-modal-icon" id="roundModalIcon">🎉</div>
-        <h3 class="round-modal-title" id="roundModalTitle">آفرین! درست حدس زدی!</h3>
+        <h3 class="round-modal-title" id="roundModalTitle">افریننننن درست حدس زدیی دخترر من</h3>
         <p class="round-modal-subtitle" id="roundModalSubtitle">امتیاز این راند ثبت شد</p>
 
         <div class="revealed-word-box">
@@ -370,7 +373,7 @@
             <div class="auto-next-progress">
                 <div id="autoNextFill" class="auto-next-fill"></div>
             </div>
-            <span id="autoNextCountdownText" class="auto-next-text">رفتن خودکار به کلمه بعدی و تعویض نوبت...</span>
+            <span id="autoNextCountdownText" class="auto-next-text">رفتن به کلمه بعدی و عوض شدن نوبت...</span>
         </div>
 
         <button type="button" id="nextRoundBtn" class="primary-game-btn" onclick="proceedToNextRound()">
@@ -388,7 +391,7 @@
 <div id="matchWinnerModal" class="game-modal-overlay">
     <div class="game-modal-card winner-card">
         <div class="winner-crown-icon"><i class="fa-solid fa-crown"></i></div>
-        <h2 class="winner-modal-title" id="winnerModalTitle">قهرمان این دست! 🏆</h2>
+        <h2 class="winner-modal-title" id="winnerModalTitle">قهرمان این دستتتتتتت</h2>
         <p class="winner-modal-sub" id="winnerModalSub">رسید به سقف امتیاز و برنده شد!</p>
 
         <div class="final-score-box">

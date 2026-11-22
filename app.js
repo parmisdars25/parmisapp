@@ -1434,7 +1434,7 @@ function renderTodoCategoriesList() {
 }
 
 // ==================== ۳. سیستم نصب بومی (PWA)، آپدیت خودکار (OTA) و نوتیفیکیشن محلی — نسخه ۱۸ (Supabase) ====================
-const CURRENT_APP_VERSION = '20.1';
+const CURRENT_APP_VERSION = '20.2';
 let deferredInstallPrompt = window.__earlyInstallPrompt || null;
 let waitingServiceWorker = null;
 

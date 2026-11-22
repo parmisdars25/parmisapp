@@ -461,7 +461,7 @@ window.resumeExistingMatch = function() {
 
 // بستن و اتمام کامل بازی نصفه‌کاره در هر لحظه
 window.endCurrentMatch = async function() {
-    if (!confirm("می‌خوای این بازی رو کلاً ببندی و هر دو نفر برگردید به اتاق انتظار؟")) return;
+    if (!confirm("میخوای این بازیو ببندیو جفتمون بریم اتاق انتظار؟")) return;
     try {
         isInsideArenaSession = false;
         strokesList = [];
@@ -547,7 +547,7 @@ function runReadyCountdownOverlay() {
             playGameTone('tick');
         } else {
             clearInterval(interval);
-            if (numEl) numEl.textContent = 'شروع! 🎨';
+            if (numEl) numEl.textContent = 'شروع';
             playGameTone('correct');
             isInsideArenaSession = true;
 
@@ -857,7 +857,7 @@ window.useLetterHint = async function() {
     const revealed = Array.isArray(currentRoomState.revealedIndices) ? [...currentRoomState.revealedIndices] : [];
 
     if (revealed.length >= 2 || revealed.length >= Math.floor(word.length / 2)) {
-        alert("حداکثر راهنمایی این کلمه رو گرفتی! حالا حدس بزن 💡");
+        alert("عشقم همه راهنماییارو گرفتی تموم شد راهنماییات");
         return;
     }
 
@@ -882,7 +882,7 @@ window.useLetterHint = async function() {
 
 window.skipCurrentTurn = async function() {
     if (!canIDrawNow()) return;
-    if (!confirm("می‌خوای این کلمه رو رد کنی و نوبت بره برای پارتنرت؟")) return;
+    if (!confirm("میخوای این کبمه رو رد کنی و نوبت بشه برا اقاییت؟")) return;
 
     try {
         await mergeRoomState({
@@ -1078,6 +1078,7 @@ window.returnToLobbyFromWinner = async function() {
 // ثبت برد در جدول افتخارات کل تاریخ (game_stats)
 async function recordMatchWinInStats(winnerName) {
     try {
+        await getDb();
         const { data } = await sb
             .from('game_stats')
             .select('*')
@@ -1153,19 +1154,19 @@ function updateLobbyReadyUI(roomData) {
     if (readyBtn) readyBtn.classList.toggle('is-ready-active', myReady);
     if (readyBtnText) {
         readyBtnText.textContent = myReady
-            ? 'آماده‌ام! ✅ (برای لغو کلیک کن)'
-            : 'آماده‌ام! (Ready)';
+            ? 'اماده ام'
+            : 'آماده‌ ام';
     }
 
     if (helperNote) {
         if (myReady && partnerReady) {
-            helperNote.textContent = 'هر دو نفر آماده! در حال ورود به بوم نقاشی... 🎨';
+            helperNote.textContent = 'هر دووتامون اماده ایمم بزن بریم... ';
         } else if (myReady && !partnerReady) {
-            helperNote.textContent = `تو آماده‌ای! منتظریم تا ${partnerName} هم دکمه «آماده‌ام» رو بزنه... ⏳`;
+            helperNote.textContent = `تو اماده ‌ای بچمم منتظریم تا ${partnerName} هم دکمه اماده‌ ام رو بزنه`;
         } else if (!myReady && partnerReady) {
-            helperNote.textContent = `${partnerName} آماده‌ست و منتظر توئه! دکمه «آماده‌ام» رو بزن 🚀`;
+            helperNote.textContent = `${partnerName} اماده ‌ست و منتظر توئه قلبمم دکمه اماده‌ ام رو بزن `;
         } else {
-            helperNote.textContent = 'وقتی هر دو نفر وارد این صفحه بشن و «آماده‌ام» رو بزنن، بازی خودکار شروع میشه! 🚀';
+            helperNote.textContent = 'وقتی هر دوتامون وارد این صفحه بشیم و جفتمون دکمه اماده امو بزنیم بازی شروع میشه نفسم';
         }
     }
 
@@ -1181,7 +1182,7 @@ function renderPermanentGuessesList(guesses = []) {
     if (!listEl) return;
 
     if (guesses.length === 0) {
-        listEl.innerHTML = `<div class="guesses-empty-text">هنوز حدسی زده نشده... منتظر اولین حدس! 🎯</div>`;
+        listEl.innerHTML = `<div class="guesses-empty-text">هنوزز حدسی زده نشده</div>`;
         lastRenderedGuessCount = 0;
         return;
     }
@@ -1192,7 +1193,7 @@ function renderPermanentGuessesList(guesses = []) {
                 <span class="guess-row-author">${escapeHtml(g.author || '')}:</span>
                 <span class="guess-row-text">${escapeHtml(g.text || '')}</span>
             </div>
-            <span class="guess-row-status">${g.isClose ? '🔥 خیلی نزدیک!' : '❌ اشتباه'}</span>
+            <span class="guess-row-status">${g.isClose ? ' خیلی نزدیککک' : ' اشتباه'}</span>
         </div>
     `).join('');
 
@@ -1219,7 +1220,7 @@ function renderRoomUI(roomData) {
         resumeBar.style.display = isMatchActive ? 'flex' : 'none';
     }
     if (resumeTxt && isMatchActive) {
-        resumeTxt.textContent = `ورود به بازیِ در حال اجرا (راند ${roomData.roundNumber || 1})`;
+        resumeTxt.textContent = `ورود به بازیه در حال اجرا (راند ${roomData.roundNumber || 1})`;
     }
 
     document.getElementById('liveScoreMahdi').textContent = roomData.scoreMahdi || 0;
@@ -1276,7 +1277,7 @@ function renderRoomUI(roomData) {
         if (guesserInputRow) guesserInputRow.style.display = 'flex';
         if (lockBadge) lockBadge.style.display = 'inline-flex';
 
-        document.getElementById('guesserStatusTitle').textContent = `${roomData.drawer} داره نقاشی می‌کشه 🎨`;
+        document.getElementById('guesserStatusTitle').textContent = `${roomData.drawer}  جونت داره نقاشی میکشهه `;
         const word = roomData.secretWord || '';
         const cleanLen = word.replace(/\s+/g, '').length;
         const hasSpace = word.includes(' ');
@@ -1311,18 +1312,18 @@ function renderRoomUI(roomData) {
 
         if (res.reason === 'guessed') {
             iconEl.textContent = '🎉';
-            titleEl.textContent = `${res.winner} درست حدس زد!`;
-            subEl.textContent = `نقاشیِ ${res.drawer} عالی بود و امتیاز ثبت شد`;
+            titleEl.textContent = `${res.winner} درست حدس زددد`;
+            subEl.textContent = `نقاشیِ ${res.drawer} عالی بود و امتیاز ثبت شددد`;
             ptsBadge.textContent = `+${res.pointsEarned} امتیاز برای ${res.winner}`;
             ptsBadge.style.display = 'inline-block';
         } else if (res.reason === 'timeout') {
             iconEl.textContent = '⏰';
-            titleEl.textContent = 'وقت این راند تموم شد!';
-            subEl.textContent = 'نوبت نقاشی خودکار عوض میشه و می‌ریم کلمه بعدی';
+            titleEl.textContent = 'وقت این راند تموم شد';
+            subEl.textContent = 'نوبت نقاشی خودکار عوض میشه و میریم کلمه بعدی';
             ptsBadge.style.display = 'none';
         } else {
             iconEl.textContent = '🏳️';
-            titleEl.textContent = 'این کلمه رد شد!';
+            titleEl.textContent = 'این کلمه رد شد';
             subEl.textContent = 'نوبت نقاشی خودکار عوض میشه';
             ptsBadge.style.display = 'none';
         }
@@ -1343,11 +1344,11 @@ function renderRoomUI(roomData) {
             recordMatchWinInStats(currentUser);
         }
 
-        document.getElementById('winnerModalTitle').textContent = `قهرمان این دست: ${roomData.matchWinner}! 🏆`;
-        document.getElementById('winnerModalSub').textContent = `با رسیدن به سقف ${roomData.targetPoints} امتیاز برنده این ماراتن شد!`;
+        document.getElementById('winnerModalTitle').textContent = `قهرمان این دستتتتتت: ${roomData.matchWinner}! 🏆`;
+        document.getElementById('winnerModalSub').textContent = `با رسیدن به سقف ${roomData.targetPoints} امتیاز برنده این ماراتن شد`;
         document.getElementById('finalScoreMahdi').textContent = roomData.scoreMahdi || 0;
         document.getElementById('finalScoreParmis').textContent = roomData.scoreParmis || 0;
-        document.getElementById('updatedHistoryNote').textContent = `۱ بُرد طلایی به کارنامه ${roomData.matchWinner} اضافه شد ✨`;
+        document.getElementById('updatedHistoryNote').textContent = `۱ برد طلایی به کارنامه ${roomData.matchWinner} اضافه شددد`;
 
         roundModal.classList.remove('active');
         winnerModal.classList.add('active');
@@ -1624,10 +1625,10 @@ function updatePartnerPresenceBadge(pData) {
 
     if (pData.inDrawGame && pData.isOnline) {
         dot.className = 'presence-dot online';
-        txt.textContent = `${partnerName} الان داخل صفحه بازیه 🎮`;
+        txt.textContent = `${partnerName} الان داخل صفحه بازیه `;
     } else if (pData.isOnline) {
         dot.className = 'presence-dot online';
-        txt.textContent = `${partnerName} تو برنامه آنلاینه (بیرون از بازی)`;
+        txt.textContent = `${partnerName} تو برنامه انلاینه (بیرون از بازی)`;
     } else {
         dot.className = 'presence-dot';
         txt.textContent = `منتظر ورود ${partnerName}...`;

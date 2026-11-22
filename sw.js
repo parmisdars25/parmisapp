@@ -1,5 +1,5 @@
-// ==================== Service Worker — ParmisApp (نسخه ۲۰.۱ — آماده برای PWABuilder و APK اندروید) ====================
-const CACHE_NAME = 'parmisapp-static-v20-1';
+// ==================== Service Worker — ParmisApp (نسخه ۲۰.۲ — آماده برای PWABuilder و APK اندروید) ====================
+const CACHE_NAME = 'parmisapp-static-v20-2';
 const CORE_ASSETS = [
     './',
     './index.html',
