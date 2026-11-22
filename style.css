@@ -1,0 +1,3616 @@
+/* مخفی‌سازی کامل هرگونه بنر تبلیغاتی نتلیفای و هر المان تزریق‌شده بیرون از اپ */
+body > *:not(#otaUpdateBanner):not(#loginScreen):not(#actionModal):not(#partnerProfileModal):not(#settingsModal):not(#appContainer):not(script):not(style):not(link),
+a[href*="netlify"]:not(.square-card),
+iframe[src*="netlify"],
+div[id*="netlify"],
+div[class*="netlify"],
+[data-netlify-deploy-drawer] {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+    width: 0 !important;
+    height: 0 !important;
+    position: fixed !important;
+    top: -9999px !important;
+    left: -9999px !important;
+    z-index: -9999 !important;
+}
+
+:root {
+    --vv-height: 100dvh;
+    --vv-top: 0px;
+    --bg-root: #f2f4f8;
+    --bg-app: #f8fafc;
+    --bg-surface: #ffffff;
+    --bg-subtle: #f1f5f9;
+    --bg-bubble-received: #ffffff;
+    --accent-primary: #4f46e5;
+    --accent-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+    --text-primary: #0f172a;
+    --text-secondary: #475569;
+    --text-muted: #94a3b8;
+    --border-subtle: rgba(15, 23, 42, 0.07);
+    --border-focus: rgba(79, 70, 229, 0.35);
+    --danger: #ef4444;
+    --online: #10b981;
+    --shadow-card: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+    --shadow-card-hover: 0 12px 28px -4px rgba(15, 23, 42, 0.09), 0 2px 6px 0 rgba(15, 23, 42, 0.04);
+}
+
+* {
+    box-sizing: border-box;
+    -webkit-tap-highlight-color: transparent;
+}
+
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+    overscroll-behavior: none;
+    -webkit-font-smoothing: antialiased;
+}
+
+body {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, sans-serif;
+    background-color: var(--bg-root);
+    background-image: 
+        radial-gradient(circle at 10% 10%, rgba(99, 102, 241, 0.05) 0%, transparent 45%),
+        radial-gradient(circle at 90% 90%, rgba(236, 72, 153, 0.05) 0%, transparent 45%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--text-primary);
+}
+
+/* کانتینر اصلی اپلیکیشن */
+.app-container {
+    width: 100%;
+    max-width: 440px;
+    height: 92vh;
+    max-height: 860px;
+    background: var(--bg-app);
+    border-radius: 32px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10), 0 0 0 1px var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+@media (max-width: 500px) {
+    .app-container {
+        position: fixed;
+        top: var(--vv-top, 0px);
+        left: 0;
+        right: 0;
+        width: 100%;
+        max-width: 100%;
+        height: var(--vv-height, 100dvh);
+        max-height: none;
+        border-radius: 0;
+        border: none;
+        box-shadow: none;
+    }
+}
+
+/* ==================== ذرات کلمات جادویی ==================== */
+.magic-particle {
+    position: absolute;
+    bottom: 60px;
+    font-size: 22px;
+    pointer-events: none;
+    z-index: 90;
+    animation: floatUpParticle 2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes floatUpParticle {
+    0% { transform: translateY(0) scale(0.5); opacity: 0; }
+    20% { opacity: 1; transform: translateY(-40px) scale(1.1); }
+    100% { transform: translateY(-320px) scale(0.9); opacity: 0; }
+}
+
+/* ==================== صفحه لاگین (Light) ==================== */
+.login-screen {
+    position: fixed;
+    top: var(--vv-top, 0px);
+    left: 0;
+    right: 0;
+    height: var(--vv-height, 100dvh);
+    background: var(--bg-root);
+    background-image: radial-gradient(circle at 50% 0%, rgba(79, 70, 229, 0.08) 0%, transparent 60%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 200;
+    transition: opacity 0.25s ease;
+    padding: 20px;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 360px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 28px;
+    padding: 36px 28px;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+    text-align: center;
+    transition: transform 0.1s ease;
+}
+
+.login-logo {
+    width: 56px;
+    height: 56px;
+    border-radius: 18px;
+    background: #eef2ff;
+    color: var(--accent-primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    margin: 0 auto 20px;
+}
+
+.login-card h2 {
+    margin: 0 0 6px 0;
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.3px;
+}
+
+.login-subtitle {
+    margin: 0 0 28px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+}
+
+.input-group {
+    margin-bottom: 14px;
+    text-align: right;
+}
+
+.input-group label {
+    display: block;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+    font-weight: 600;
+}
+
+.modern-input {
+    width: 100%;
+    padding: 13px 16px;
+    border-radius: 14px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.modern-input:focus {
+    border-color: var(--accent-primary);
+    background: var(--bg-surface);
+    box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.1);
+}
+
+.modern-input::placeholder {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.login-error {
+    color: var(--danger);
+    font-size: 12px;
+    margin: 6px 0 12px;
+    opacity: 0;
+    transition: opacity 0.2s;
+    font-weight: 500;
+}
+
+.primary-btn {
+    width: 100%;
+    padding: 14px;
+    border-radius: 14px;
+    border: none;
+    background: var(--accent-gradient);
+    color: white;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.primary-btn:hover {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+}
+
+.primary-btn:active {
+    transform: translateY(0) scale(0.99);
+}
+
+/* ==================== صفحه هوم (Bento Square Cards) ==================== */
+.home-screen {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    padding: calc(22px + env(safe-area-inset-top, 0px)) 20px calc(22px + env(safe-area-inset-bottom, 0px));
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    animation: fadeIn 0.25s ease;
+}
+
+.home-top-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 26px;
+}
+
+.home-user-greeting {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    cursor: pointer;
+}
+
+.home-my-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid var(--bg-surface);
+    box-shadow: 0 2px 10px rgba(15, 23, 42, 0.08);
+}
+
+.greeting-texts h1 {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.greeting-texts p {
+    margin: 2px 0 0 0;
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.section-label {
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-right: 4px;
+}
+
+.bento-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 14px;
+    width: 100%;
+}
+
+.square-card {
+    aspect-ratio: 1 / 1;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 26px;
+    padding: 18px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    position: relative;
+    transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    text-decoration: none;
+    color: inherit;
+    overflow: hidden;
+}
+
+.square-card:hover {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-card-hover);
+    border-color: rgba(79, 70, 229, 0.18);
+}
+
+.square-card:active {
+    transform: scale(0.97);
+}
+
+.card-top-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.card-avatar-box {
+    position: relative;
+    width: 48px;
+    height: 48px;
+}
+
+.card-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 16px;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--border-subtle);
+}
+
+.card-online-dot {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    width: 13px;
+    height: 13px;
+    background: #cbd5e1;
+    border-radius: 50%;
+    border: 2.5px solid var(--bg-surface);
+    transition: background 0.3s;
+}
+
+.card-online-dot.online {
+    background: var(--online);
+}
+
+.unread-badge {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 7px;
+    background: #ef4444;
+    color: #ffffff;
+    font-size: 12px;
+    font-weight: 700;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(239, 68, 68, 0.35);
+    animation: popScale 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.card-icon-box {
+    width: 48px;
+    height: 48px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.card-icon-box.parmis-world {
+    background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%);
+    color: #db2777;
+    border: 1px solid rgba(219, 39, 119, 0.12);
+}
+
+.card-external-arrow {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    transition: all 0.2s;
+}
+
+.square-card:hover .card-external-arrow {
+    background: var(--text-primary);
+    color: white;
+}
+
+.card-bottom-info {
+    text-align: right;
+    width: 100%;
+}
+
+.card-title {
+    margin: 0 0 4px 0;
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.card-subtitle {
+    margin: 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
+}
+
+/* ==================== صفحه چت (Light) ==================== */
+.chat-screen {
+    display: none;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    min-height: 0;
+    overflow: hidden;
+    position: relative;
+    animation: fadeIn 0.2s ease;
+}
+
+.chat-header {
+    padding: calc(10px + env(safe-area-inset-top, 0px)) 14px 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border-subtle);
+    z-index: 25;
+    flex-shrink: 0;
+}
+
+.header-right-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.header-left-group {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.back-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.15s;
+}
+
+.back-btn:hover {
+    background: var(--bg-subtle);
+}
+
+.partner-info-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 4px 6px;
+    border-radius: 12px;
+    transition: background 0.2s ease;
+}
+
+.partner-info-box:hover {
+    background: var(--bg-subtle);
+}
+
+.avatar-wrapper {
+    position: relative;
+    width: 40px;
+    height: 40px;
+}
+
+.avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid var(--border-subtle);
+}
+
+.online-dot {
+    position: absolute;
+    bottom: 0px;
+    right: 0px;
+    width: 11px;
+    height: 11px;
+    background-color: #cbd5e1;
+    border-radius: 50%;
+    border: 2px solid var(--bg-surface);
+    transition: all 0.3s ease;
+}
+
+.online-dot.online {
+    background-color: var(--online);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-size: 15px;
+    font-weight: 700;
+    margin: 0;
+    color: var(--text-primary);
+    line-height: 1.3;
+}
+
+.user-status {
+    font-size: 11.5px;
+    color: var(--text-muted);
+    margin: 2px 0 0 0;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    height: 16px;
+}
+
+.user-status.online {
+    color: var(--online);
+}
+
+.user-status.typing {
+    color: var(--accent-primary);
+}
+
+.typing-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 2px;
+    margin-right: 2px;
+}
+
+.typing-dots span {
+    width: 3.5px;
+    height: 3.5px;
+    background: var(--accent-primary);
+    border-radius: 50%;
+    animation: bounceDot 1.3s infinite ease-in-out;
+}
+
+.typing-dots span:nth-child(2) { animation-delay: 0.15s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes bounceDot {
+    0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+    40% { transform: scale(1); opacity: 1; }
+}
+
+/* ==================== نوار جستجوی پیشرفته در چت ==================== */
+.chat-search-bar {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 14px;
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-subtle);
+    z-index: 22;
+    flex-shrink: 0;
+    animation: fadeIn 0.18s ease;
+}
+
+.chat-search-bar.active {
+    display: flex;
+}
+
+.search-input-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 5px 10px;
+    gap: 8px;
+}
+
+.search-input-wrap:focus-within {
+    background: var(--bg-surface);
+    border-color: var(--accent-primary);
+}
+
+.search-input-wrap i {
+    color: var(--text-muted);
+    font-size: 13px;
+}
+
+.chat-search-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--text-primary);
+    outline: none;
+    min-width: 0;
+}
+
+.search-counter {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.search-nav-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 10px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.search-nav-btn:hover {
+    background: #e2e8f0;
+    color: var(--text-primary);
+}
+
+.search-mark {
+    background: #fde047;
+    color: #0f172a;
+    border-radius: 4px;
+    padding: 0 2px;
+    font-weight: 700;
+}
+
+.message.search-active-target {
+    outline: 2.5px solid #f59e0b;
+    outline-offset: 2px;
+}
+
+/* منوی سه نقطه و دکمه صدا */
+.dropdown {
+    position: relative;
+}
+
+.icon-action-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.icon-action-btn:hover {
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+}
+
+.icon-action-btn.muted {
+    color: var(--text-muted);
+    opacity: 0.6;
+}
+
+.dropdown-content {
+    position: absolute;
+    left: 0;
+    top: 44px;
+    background: var(--bg-surface);
+    min-width: 185px;
+    border-radius: 16px;
+    padding: 6px;
+    box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+    border: 1px solid var(--border-subtle);
+    z-index: 100;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-6px) scale(0.96);
+    transform-origin: top left;
+    transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.dropdown-content.show {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+}
+
+.dropdown-item {
+    color: var(--text-primary);
+    padding: 10px 12px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+}
+
+.dropdown-item:hover {
+    background: var(--bg-subtle);
+}
+
+.dropdown-item.danger {
+    color: var(--danger);
+}
+
+.dropdown-item.danger:hover {
+    background: #fef2f2;
+}
+
+.dropdown-divider {
+    height: 1px;
+    background: var(--border-subtle);
+    margin: 4px 0;
+}
+
+/* ==================== لیست پیام‌ها ==================== */
+.chat-messages {
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: 16px;
+    overflow-y: auto;
+    overflow-x: hidden;
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-y: contain;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    scroll-behavior: smooth;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 4px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.12);
+    border-radius: 10px;
+}
+
+/* جداکننده هوشمند تاریخ */
+.date-separator {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 8px 0 4px;
+    pointer-events: none;
+    user-select: none;
+    flex-shrink: 0;
+}
+
+.date-separator span {
+    background: rgba(241, 245, 249, 0.92);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 12px;
+    border-radius: 14px;
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.03);
+}
+
+.empty-state {
+    margin: auto;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.empty-icon {
+    font-size: 32px;
+    margin-bottom: 10px;
+    opacity: 0.5;
+}
+
+.empty-state p {
+    margin: 0 0 4px 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.empty-state span {
+    font-size: 12px;
+}
+
+.message-wrapper {
+    position: relative;
+    display: flex;
+    width: 100%;
+    align-items: center;
+    flex-shrink: 0;
+    padding: 2px 0;
+    touch-action: pan-y;
+    transition: background 0.15s ease;
+    border-radius: 14px;
+}
+
+.message-wrapper:has(.has-reaction) {
+    margin-bottom: 10px;
+}
+
+/* استایل انتخاب چندتایی (Multi-select) */
+.select-checkbox {
+    width: 0;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid #cbd5e1;
+    background: var(--bg-surface);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    opacity: 0;
+    overflow: hidden;
+    margin-left: 0;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chat-screen.selection-mode .select-checkbox {
+    width: 22px;
+    opacity: 1;
+    margin-left: 10px;
+}
+
+.message-wrapper.selected {
+    background: rgba(79, 70, 229, 0.07);
+    padding-right: 6px;
+    padding-left: 6px;
+}
+
+.message-wrapper.selected .select-checkbox {
+    background: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+@keyframes msgAppear {
+    from { opacity: 0; transform: translateY(12px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* آیکون ریپلای در سمت راست حباب قرار می‌گیرد تا با کشیدن حباب به چپ دیده شود */
+.swipe-reply-icon {
+    position: absolute;
+    top: 50%;
+    right: -42px;
+    transform: translateY(-50%) scale(0.6);
+    width: 30px;
+    height: 30px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: var(--accent-primary);
+    opacity: 0;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 0;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+}
+
+.message {
+    max-width: 78%;
+    padding: 10px 14px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.55;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    z-index: 2;
+    user-select: none;
+    -webkit-user-select: none;
+    word-wrap: break-word;
+    cursor: pointer;
+    touch-action: pan-y;
+}
+
+.sent-wrapper { justify-content: flex-start; }
+.sent {
+    background: var(--accent-gradient);
+    color: #ffffff;
+    border-bottom-right-radius: 4px;
+    box-shadow: 0 3px 12px rgba(79, 70, 229, 0.18);
+}
+
+.received-wrapper { justify-content: flex-end; }
+.received {
+    background: var(--bg-bubble-received);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    border-bottom-left-radius: 4px;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.03);
+}
+
+.voice-magic-btn {
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: inherit;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 9px;
+    cursor: pointer;
+    margin-left: 4px;
+    transition: transform 0.15s, background 0.15s;
+}
+
+.received .voice-magic-btn {
+    background: #eef2ff;
+    color: var(--accent-primary);
+}
+
+.voice-magic-btn:hover {
+    transform: scale(1.15);
+}
+
+/* ریپلای داخل حباب */
+.replied-msg {
+    background: rgba(255, 255, 255, 0.15);
+    border-right: 2.5px solid rgba(255, 255, 255, 0.85);
+    padding: 5px 9px;
+    border-radius: 8px;
+    margin-bottom: 6px;
+    font-size: 12px;
+}
+
+.received .replied-msg {
+    background: var(--bg-subtle);
+    border-right-color: var(--accent-primary);
+}
+
+.replied-sender {
+    font-weight: 700;
+    font-size: 11px;
+    margin-bottom: 1px;
+}
+
+.received .replied-sender {
+    color: var(--accent-primary);
+}
+
+.replied-text {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 210px;
+    opacity: 0.85;
+}
+
+.message-meta {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 4px;
+    margin-top: 3px;
+}
+
+.edited-label {
+    font-size: 9.5px;
+    opacity: 0.72;
+    font-style: italic;
+}
+
+.received .edited-label {
+    color: var(--text-muted);
+    opacity: 1;
+}
+
+.message-time {
+    font-size: 10px;
+    opacity: 0.75;
+    font-variant-numeric: tabular-nums;
+}
+
+.received .message-time {
+    color: var(--text-muted);
+    opacity: 1;
+}
+
+.tick-icon {
+    font-size: 10px;
+    opacity: 0.8;
+}
+
+.tick-icon.seen {
+    color: #a5f3fc;
+    opacity: 1;
+}
+
+/* بج لایک گوشه پیام */
+.reaction-pill {
+    position: absolute;
+    bottom: -10px;
+    left: 10px;
+    background: var(--bg-surface);
+    border: 1.5px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 2px 6px;
+    font-size: 10px;
+    color: #f43f5e;
+    box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: popScale 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.received .reaction-pill {
+    left: auto;
+    right: 10px;
+}
+
+@keyframes popScale {
+    from { transform: scale(0); }
+    to { transform: scale(1); }
+}
+
+.floating-heart-burst {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: #f43f5e;
+    font-size: 32px;
+    pointer-events: none;
+    z-index: 20;
+    animation: burstAnim 0.8s ease-out forwards;
+    filter: drop-shadow(0 4px 12px rgba(244, 63, 94, 0.35));
+}
+
+@keyframes burstAnim {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 1; }
+    50% { transform: translate(-50%, -80%) scale(1.25); opacity: 1; }
+    100% { transform: translate(-50%, -110%) scale(1); opacity: 0; }
+}
+
+/* دکمه شناور اسکرول به پایین (FAB) */
+.scroll-bottom-btn {
+    position: absolute;
+    bottom: 84px;
+    left: 18px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    color: var(--text-secondary);
+    box-shadow: 0 6px 18px rgba(15, 23, 42, 0.12);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    cursor: pointer;
+    z-index: 24;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(10px) scale(0.9);
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-bottom-btn.visible {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+}
+
+.scroll-bottom-btn:hover {
+    color: var(--accent-primary);
+    border-color: var(--border-focus);
+}
+
+/* ==================== بخش ورودی پیام و ایموجی ==================== */
+.chat-input-wrapper {
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+    position: relative;
+    z-index: 25;
+    flex-shrink: 0;
+}
+
+/* نوار عملیات انتخاب چندتایی (جایگزین موقت نوار تایپ هنگام انتخاب پیام‌ها) */
+.selection-bar {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px calc(14px + env(safe-area-inset-bottom, 0px));
+    background: var(--bg-surface);
+    border-top: 1px solid var(--border-subtle);
+    position: absolute;
+    inset: 0;
+    z-index: 40;
+    animation: fadeIn 0.15s ease;
+}
+
+.selection-bar.active {
+    display: flex;
+}
+
+.selection-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.selection-cancel-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 10px;
+    border: none;
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+}
+
+.selection-count-text {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.selection-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.selection-action-btn {
+    padding: 8px 13px;
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-subtle);
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.15s;
+}
+
+.selection-action-btn.danger {
+    background: #fef2f2;
+    color: var(--danger);
+    border-color: rgba(239, 68, 68, 0.2);
+}
+
+.selection-action-btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+}
+
+.reply-preview {
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 16px;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+    animation: fadeIn 0.15s ease;
+}
+
+.reply-preview.active {
+    display: flex;
+}
+
+.reply-mode-icon {
+    color: var(--accent-primary);
+    font-size: 13px;
+    margin-left: 10px;
+}
+
+.reply-preview-content {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    font-size: 12px;
+    overflow: hidden;
+}
+
+.reply-preview-sender {
+    color: var(--accent-primary);
+    font-weight: 700;
+    font-size: 11px;
+}
+
+#replyPreviewText {
+    color: var(--text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.reply-preview-close {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 14px;
+    padding: 6px;
+    border-radius: 8px;
+}
+
+.reply-preview-close:hover {
+    color: var(--text-primary);
+    background: rgba(15, 23, 42, 0.05);
+}
+
+/* پنل ایموجی */
+.emoji-panel {
+    display: none;
+    position: absolute;
+    bottom: 100%;
+    left: 12px;
+    right: 12px;
+    margin-bottom: 8px;
+    height: 220px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 22px;
+    z-index: 30;
+    flex-direction: column;
+    box-shadow: 0 -10px 35px rgba(15, 23, 42, 0.10);
+    overflow: hidden;
+}
+
+.emoji-panel.active {
+    display: flex;
+    animation: msgAppear 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.emoji-tabs {
+    display: flex;
+    padding: 6px;
+    gap: 4px;
+    background: var(--bg-subtle);
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.emoji-tab-btn {
+    flex: 1;
+    padding: 7px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.emoji-tab-btn.active {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    box-shadow: 0 1px 4px rgba(15, 23, 42, 0.06);
+}
+
+.emoji-content-pane {
+    display: none;
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.emoji-content-pane.active {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(38px, 1fr));
+    gap: 6px;
+    align-content: start;
+}
+
+.emoji-item {
+    font-size: 22px;
+    background: transparent;
+    border: none;
+    border-radius: 10px;
+    padding: 6px 0;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+}
+
+.emoji-item:hover {
+    background: var(--bg-subtle);
+    transform: scale(1.15);
+}
+
+.coming-soon-box {
+    grid-column: 1 / -1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 130px;
+    color: var(--text-muted);
+    font-size: 13px;
+    gap: 8px;
+}
+
+/* نوار تایپ پایین */
+.chat-input-bar {
+    padding: 10px 14px calc(12px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: padding-bottom 0.1s ease;
+}
+
+body.keyboard-open .chat-input-bar {
+    padding-bottom: 10px;
+}
+
+.send-btn {
+    width: 44px;
+    height: 44px;
+    min-width: 44px;
+    border-radius: 50%;
+    border: none;
+    background: var(--accent-gradient);
+    color: white;
+    font-size: 15px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
+    position: relative;
+    z-index: 30;
+}
+
+.send-btn:hover {
+    transform: scale(1.05);
+    filter: brightness(1.05);
+}
+
+.send-btn:active {
+    transform: scale(0.94);
+}
+
+.input-capsule {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: 24px;
+    padding: 4px 6px 4px 10px;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.2s;
+}
+
+.input-capsule:focus-within {
+    background: var(--bg-surface);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.input-box {
+    flex: 1;
+    background: transparent;
+    border: none;
+    padding: 8px 10px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 16px;
+    outline: none;
+}
+
+.input-box::placeholder {
+    color: var(--text-muted);
+    font-size: 14px;
+}
+
+.emoji-toggle-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: color 0.2s, background 0.2s;
+}
+
+.emoji-toggle-btn:hover {
+    color: var(--accent-primary);
+    background: rgba(79, 70, 229, 0.08);
+}
+
+/* ==================== مدال‌ها (Light) ==================== */
+.modal-overlay {
+    position: fixed;
+    top: var(--vv-top, 0px);
+    left: 0;
+    right: 0;
+    height: var(--vv-height, 100dvh);
+    background: rgba(15, 23, 42, 0.35);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-overlay.active {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.modal-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 26px;
+    padding: 24px;
+    width: 100%;
+    max-width: 310px;
+    text-align: center;
+    box-shadow: 0 20px 50px rgba(15, 23, 42, 0.15);
+    position: relative;
+    animation: modalPop 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalPop {
+    from { transform: scale(0.94) translateY(8px); opacity: 0; }
+    to { transform: scale(1) translateY(0); opacity: 1; }
+}
+
+.modal-close-x {
+    position: absolute;
+    top: 16px;
+    left: 16px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--bg-subtle);
+    border: none;
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: background 0.2s;
+}
+
+.modal-close-x:hover {
+    background: #e2e8f0;
+    color: var(--text-primary);
+}
+
+/* منوی اکشن پیام */
+.action-sheet {
+    padding: 8px;
+    max-width: 260px;
+}
+
+.action-item {
+    width: 100%;
+    padding: 11px 14px;
+    border: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 13.5px;
+    font-weight: 600;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: background 0.15s;
+}
+
+.action-item:hover {
+    background: var(--bg-subtle);
+}
+
+.action-item i {
+    color: var(--text-secondary);
+    font-size: 15px;
+}
+
+.action-item.danger {
+    color: var(--danger);
+}
+
+.action-item.danger i {
+    color: var(--danger);
+}
+
+/* استایل پروفایل در مدال */
+.profile-pic-large {
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    margin: 6px auto 14px;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid var(--bg-subtle);
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.08);
+    position: relative;
+}
+
+.profile-pic-editable {
+    cursor: pointer;
+}
+
+.profile-pic-editable::after {
+    content: '\f030';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    color: white;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid var(--bg-surface);
+}
+
+.avatar-loader {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.75);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--accent-primary);
+    font-size: 20px;
+}
+
+.profile-modal-name {
+    margin: 0 0 4px 0;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.profile-modal-status {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin: 0 0 16px 0;
+    font-weight: 500;
+}
+
+.profile-bio-box {
+    background: var(--bg-subtle);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 12px 14px;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    text-align: right;
+    margin-bottom: 10px;
+}
+
+.profile-bio-label {
+    display: block;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    margin-bottom: 4px;
+}
+
+/* دکمه حذف تصویر پروفایل در مدال تنظیمات */
+.remove-pic-btn {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin: -4px auto 12px;
+    padding: 6px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(239, 68, 68, 0.2);
+    background: #fef2f2;
+    color: var(--danger);
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.remove-pic-btn:hover {
+    background: #fee2e2;
+}
+
+/* آیکون‌ها و بج کارت‌های جدید صفحه هوم */
+.card-icon-box.memories-card {
+    background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+    color: #d97706;
+    border: 1px solid rgba(217, 119, 6, 0.14);
+}
+
+.card-icon-box.todo-card {
+    background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+    color: #059669;
+    border: 1px solid rgba(5, 150, 105, 0.14);
+}
+
+.card-stat-pill {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 10px;
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-subtle);
+}
+
+/* ==================== استایل پنل‌های اسلایدی از پایین (Bottom Sheets) ==================== */
+.bottom-sheet-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.38);
+    backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
+    z-index: 60;
+    opacity: 0;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    transition: opacity 0.28s ease;
+}
+
+.bottom-sheet-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.bottom-sheet-panel {
+    width: 100%;
+    height: 92%;
+    background: var(--bg-app);
+    border-radius: 28px 28px 0 0;
+    box-shadow: 0 -14px 40px rgba(15, 23, 42, 0.14);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: translateY(100%);
+    transition: transform 0.34s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.bottom-sheet-overlay.active .bottom-sheet-panel {
+    transform: translateY(0);
+}
+
+.sheet-drag-bar {
+    width: 38px;
+    height: 4.5px;
+    background: #cbd5e1;
+    border-radius: 10px;
+    margin: 10px auto 4px;
+    flex-shrink: 0;
+}
+
+.sheet-header {
+    padding: 8px 18px 12px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    border-bottom: 1px solid var(--border-subtle);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    flex-shrink: 0;
+}
+
+.sheet-header-title {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 800;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sheet-header-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.sheet-action-pill {
+    padding: 7px 12px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent-gradient);
+    color: white;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.22);
+    transition: transform 0.15s;
+}
+
+.sheet-action-pill:active {
+    transform: scale(0.96);
+}
+
+.sheet-close-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: background 0.15s;
+}
+
+.sheet-close-btn:hover {
+    background: #e2e8f0;
+    color: var(--text-primary);
+}
+
+.sheet-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 16px 16px calc(24px + env(safe-area-inset-bottom, 0px));
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.sheet-empty-state {
+    margin: auto;
+    text-align: center;
+    padding: 36px 20px;
+    color: var(--text-muted);
+}
+
+.sheet-empty-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 20px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 12px;
+    font-size: 22px;
+    color: var(--accent-primary);
+    box-shadow: var(--shadow-card);
+}
+
+.sheet-empty-state p {
+    margin: 0 0 4px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-secondary);
+}
+
+.sheet-empty-state span {
+    font-size: 12px;
+    line-height: 1.5;
+}
+
+/* ==================== استایل دفترچه خاطرات واقعی (Notebook Style) ==================== */
+.notebook-sheet-bg {
+    background-color: #f6f3eb;
+}
+
+.notebook-editor-box {
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+    background: #fffdf7;
+    border: 1px solid rgba(180, 155, 110, 0.28);
+    border-radius: 20px;
+    padding: 16px;
+    box-shadow: 0 8px 24px rgba(120, 95, 50, 0.08);
+    flex-shrink: 0;
+    animation: fadeIn 0.2s ease;
+}
+
+.notebook-editor-box.active {
+    display: flex;
+}
+
+.notebook-title-input {
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    border-bottom: 1.5px dashed rgba(180, 155, 110, 0.45);
+    background: transparent;
+    font-family: inherit;
+    font-size: 16px;
+    font-weight: 800;
+    color: #1e293b;
+    outline: none;
+}
+
+.notebook-text-input {
+    width: 100%;
+    min-height: 120px;
+    padding: 6px 12px;
+    border: none;
+    background-color: transparent;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 29px,
+        rgba(99, 102, 241, 0.16) 30px
+    );
+    font-family: inherit;
+    font-size: 16px;
+    line-height: 30px;
+    color: #334155;
+    resize: vertical;
+    outline: none;
+}
+
+.notebook-editor-footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    padding-top: 6px;
+}
+
+.notebook-cancel-btn {
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.notebook-save-btn {
+    padding: 9px 16px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #d97706 0%, #f59e0b 100%);
+    color: white;
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
+}
+
+/* برگه خاطره */
+.notebook-page-card {
+    position: relative;
+    background-color: #fffdf7;
+    background-image: repeating-linear-gradient(
+        to bottom,
+        transparent 0px,
+        transparent 29px,
+        rgba(99, 102, 241, 0.13) 30px
+    );
+    border: 1px solid rgba(180, 155, 110, 0.25);
+    border-radius: 18px;
+    padding: 16px 26px 20px 16px;
+    box-shadow: 0 4px 16px rgba(100, 80, 40, 0.06);
+    flex-shrink: 0;
+}
+
+/* خط حاشیه قرمز سمت راست دفترچه */
+.notebook-page-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 18px;
+    width: 1.5px;
+    background: rgba(244, 63, 94, 0.28);
+    pointer-events: none;
+}
+
+/* سوراخ‌های پانچ دفترچه در لبه راست */
+.notebook-holes {
+    position: absolute;
+    right: 5px;
+    top: 22px;
+    bottom: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    pointer-events: none;
+}
+
+.notebook-holes span {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f6f3eb;
+    box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.18);
+}
+
+.notebook-page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(180, 155, 110, 0.2);
+    background: #fffdf7;
+}
+
+.notebook-meta-right {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.notebook-date-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #b45309;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.notebook-author-badge {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    font-weight: 600;
+}
+
+.notebook-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.notebook-icon-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: rgba(15, 23, 42, 0.04);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11.5px;
+    transition: background 0.15s;
+}
+
+.notebook-icon-btn:hover {
+    background: rgba(15, 23, 42, 0.09);
+}
+
+.notebook-icon-btn.danger:hover {
+    background: #fee2e2;
+    color: var(--danger);
+}
+
+.notebook-page-title {
+    margin: 4px 0 6px;
+    font-size: 15.5px;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 30px;
+}
+
+.notebook-page-body {
+    font-size: 14px;
+    line-height: 30px;
+    color: #1e293b;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ==================== استایل کارایی که باید انجام بدیم (Grouped To-Do) ==================== */
+.todo-create-cat-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 18px;
+    padding: 8px;
+    box-shadow: var(--shadow-card);
+    flex-shrink: 0;
+}
+
+.todo-create-cat-input {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 6px 8px;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--text-primary);
+    outline: none;
+    min-width: 0;
+}
+
+.todo-create-cat-input::placeholder {
+    font-size: 13px;
+    color: var(--text-muted);
+}
+
+.todo-create-cat-btn {
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: none;
+    background: var(--accent-gradient);
+    color: white;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+}
+
+.todo-cancel-cat-btn {
+    display: none;
+    width: 32px;
+    height: 32px;
+    border-radius: 10px;
+    border: none;
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.todo-category-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 22px;
+    padding: 14px;
+    box-shadow: var(--shadow-card);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.todo-cat-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border-subtle);
+}
+
+.todo-cat-title-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+}
+
+.todo-cat-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--accent-primary);
+    flex-shrink: 0;
+}
+
+.todo-cat-title {
+    margin: 0;
+    font-size: 14.5px;
+    font-weight: 800;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.todo-cat-badge {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: #eef2ff;
+    color: var(--accent-primary);
+    flex-shrink: 0;
+}
+
+.todo-cat-actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.todo-cat-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 8px;
+    border: none;
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+}
+
+.todo-cat-btn.danger:hover {
+    background: #fee2e2;
+    color: var(--danger);
+}
+
+.todo-items-container {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.todo-empty-items {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 8px 0;
+}
+
+.todo-item-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 10px;
+    border-radius: 14px;
+    background: var(--bg-subtle);
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.todo-item-row.done {
+    background: #f8fafc;
+    opacity: 0.75;
+}
+
+.todo-checkbox {
+    width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    border: 2px solid #cbd5e1;
+    background: var(--bg-surface);
+    color: transparent;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    padding: 0;
+}
+
+.todo-checkbox.checked {
+    background: var(--online);
+    border-color: var(--online);
+    color: white;
+}
+
+.todo-item-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.todo-item-text {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--text-primary);
+    word-break: break-word;
+    transition: all 0.2s ease;
+}
+
+.todo-item-row.done .todo-item-text {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.todo-item-del {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+.todo-item-del:hover {
+    color: var(--danger);
+    background: rgba(239, 68, 68, 0.08);
+}
+
+.todo-add-item-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+    padding-top: 6px;
+    border-top: 1px dashed var(--border-subtle);
+}
+
+.todo-add-input {
+    flex: 1;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-app);
+    border-radius: 12px;
+    padding: 8px 11px;
+    font-family: inherit;
+    font-size: 16px;
+    color: var(--text-primary);
+    outline: none;
+    min-width: 0;
+}
+
+.todo-add-input::placeholder {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.todo-add-input:focus {
+    border-color: var(--accent-primary);
+    background: var(--bg-surface);
+}
+
+.todo-add-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 11px;
+    border: none;
+    background: #eef2ff;
+    color: var(--accent-primary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.todo-add-btn:hover {
+    background: var(--accent-primary);
+    color: white;
+}
+
+
+/* ==================== بنر هشدار آپدیت نسخه جدید (OTA Update Banner) ==================== */
+.ota-update-banner {
+    position: fixed;
+    top: calc(14px + env(safe-area-inset-top, 0px));
+    left: 50%;
+    transform: translateX(-50%) translateY(-150%);
+    width: calc(100% - 28px);
+    max-width: 410px;
+    background: rgba(15, 23, 42, 0.94);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    color: #ffffff;
+    border-radius: 20px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: 0 16px 38px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(255, 255, 255, 0.12);
+    z-index: 2500;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.38s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ota-update-banner.active {
+    transform: translateX(-50%) translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.ota-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-width: 0;
+}
+
+.ota-banner-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #4f46e5 0%, #ec4899 100%);
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.ota-banner-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.ota-banner-text strong {
+    font-size: 13px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.ota-banner-text span {
+    font-size: 11px;
+    color: #cbd5e1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.ota-banner-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.ota-update-btn {
+    padding: 7px 13px;
+    border-radius: 11px;
+    border: none;
+    background: #ffffff;
+    color: #0f172a;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.ota-update-btn:hover {
+    background: #f1f5f9;
+}
+
+.ota-update-btn:active {
+    transform: scale(0.95);
+}
+
+.ota-dismiss-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 9px;
+    border: none;
+    background: rgba(255, 255, 255, 0.12);
+    color: #cbd5e1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/* ==================== آیکون‌های جدید کارت‌های صفحه هوم (نسخه ۱۵) ==================== */
+.card-icon-box.insta-card {
+    background: linear-gradient(135deg, #fff1f2 0%, #ffe4e6 100%);
+    color: #e11d48;
+    border: 1px solid rgba(225, 29, 72, 0.14);
+}
+
+.card-icon-box.study-card {
+    background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
+    color: #7c3aed;
+    border: 1px solid rgba(124, 58, 237, 0.14);
+}
+
+/* ==================== ۵. استایل مینی‌اینستاگرام دونفره (Mini-Instagram) ==================== */
+.insta-sheet-panel {
+    background: #f8fafc;
+}
+
+.insta-pill-btn {
+    background: linear-gradient(135deg, #e11d48 0%, #f43f5e 50%, #fb7185 100%);
+    box-shadow: 0 4px 12px rgba(225, 29, 72, 0.25);
+}
+
+.insta-sheet-body {
+    scroll-snap-type: y proximity;
+    scroll-behavior: smooth;
+    padding: 14px 14px calc(28px + env(safe-area-inset-bottom, 0px));
+}
+
+.insta-creator-box {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 24px;
+    padding: 16px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.08);
+    flex-shrink: 0;
+    animation: modalPop 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.insta-creator-box.active {
+    display: flex;
+}
+
+.insta-image-picker {
+    width: 100%;
+    min-height: 210px;
+    max-height: 320px;
+    border-radius: 18px;
+    border: 2px dashed rgba(225, 29, 72, 0.28);
+    background: #fff1f2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    overflow: hidden;
+    position: relative;
+    transition: all 0.2s ease;
+}
+
+.insta-image-picker:hover {
+    border-color: #e11d48;
+    background: #ffe4e6;
+}
+
+.insta-picker-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    color: #be123c;
+    text-align: center;
+    padding: 20px;
+}
+
+.insta-picker-placeholder i {
+    font-size: 32px;
+    margin-bottom: 4px;
+}
+
+.insta-picker-placeholder span {
+    font-size: 13.5px;
+    font-weight: 700;
+}
+
+.insta-picker-placeholder small {
+    font-size: 11px;
+    opacity: 0.75;
+}
+
+.insta-preview-img {
+    width: 100%;
+    height: 100%;
+    max-height: 320px;
+    object-fit: cover;
+    display: block;
+}
+
+.insta-upload-status {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 12px;
+    background: #fff1f2;
+    color: #e11d48;
+    font-size: 12.5px;
+    font-weight: 700;
+}
+
+.insta-publish-btn {
+    padding: 10px 18px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #e11d48 0%, #f43f5e 100%);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 4px 14px rgba(225, 29, 72, 0.28);
+    transition: transform 0.15s ease;
+}
+
+.insta-publish-btn:active {
+    transform: scale(0.96);
+}
+
+.insta-publish-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+/* فید پست‌های اینستاگرامی با انیمیشن ورق خوردن */
+.insta-feed-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    flex: 1;
+}
+
+.insta-post-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 26px;
+    overflow: hidden;
+    box-shadow: 0 8px 26px -4px rgba(15, 23, 42, 0.07);
+    scroll-snap-align: start;
+    flex-shrink: 0;
+    animation: instaCardSlideIn 0.38s cubic-bezier(0.16, 1, 0.3, 1) both;
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+@keyframes instaCardSlideIn {
+    0% {
+        opacity: 0;
+        transform: translateY(24px) scale(0.96);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.insta-post-header {
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.insta-author-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.insta-author-avatar {
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #fff1f2;
+    box-shadow: 0 0 0 1.5px #f43f5e;
+    flex-shrink: 0;
+}
+
+.insta-author-meta {
+    display: flex;
+    flex-direction: column;
+}
+
+.insta-author-name {
+    font-size: 13.5px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.insta-post-date {
+    font-size: 10.5px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.insta-delete-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.15s;
+}
+
+.insta-delete-btn:hover {
+    background: #fef2f2;
+    color: var(--danger);
+}
+
+.insta-media-wrap {
+    position: relative;
+    width: 100%;
+    background: #0f172a;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 240px;
+    max-height: 420px;
+    user-select: none;
+    -webkit-user-select: none;
+}
+
+.insta-post-img {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.insta-media-wrap:active .insta-post-img {
+    transform: scale(1.015);
+}
+
+/* نوار لایک و کامنت زیر عکس */
+.insta-actions-bar {
+    padding: 10px 14px 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.insta-actions-right {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+}
+
+.insta-action-btn {
+    background: transparent;
+    border: none;
+    padding: 4px;
+    color: var(--text-primary);
+    font-family: inherit;
+    font-size: 21px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), color 0.15s;
+}
+
+.insta-action-btn:active {
+    transform: scale(1.28);
+}
+
+.insta-action-btn.liked {
+    color: #e11d48;
+    animation: heartPop 0.32s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes heartPop {
+    0% { transform: scale(0.7); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+.insta-action-count {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.insta-liked-by {
+    padding: 0 14px 4px;
+    font-size: 11.5px;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.insta-caption-box {
+    padding: 4px 14px 10px;
+    font-size: 13.5px;
+    line-height: 1.6;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.insta-caption-author {
+    font-weight: 800;
+    margin-left: 6px;
+    color: var(--text-primary);
+}
+
+/* بخش کامنت‌های مینی‌اینستاگرام */
+.insta-comments-section {
+    padding: 10px 14px 14px;
+    background: var(--bg-subtle);
+    border-top: 1px solid var(--border-subtle);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.insta-comments-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-height: 150px;
+    overflow-y: auto;
+}
+
+.insta-comment-item {
+    font-size: 12.5px;
+    line-height: 1.5;
+    color: var(--text-primary);
+    background: var(--bg-surface);
+    padding: 7px 10px;
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 8px;
+}
+
+.insta-comment-author {
+    font-weight: 800;
+    color: #e11d48;
+    margin-left: 5px;
+}
+
+.insta-comment-del {
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 11px;
+    cursor: pointer;
+    padding: 2px;
+}
+
+.insta-comment-del:hover {
+    color: var(--danger);
+}
+
+.insta-comment-form {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-top: 2px;
+}
+
+.insta-comment-input {
+    flex: 1;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    border-radius: 14px;
+    padding: 8px 12px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text-primary);
+    outline: none;
+    min-width: 0;
+}
+
+.insta-comment-input::placeholder {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.insta-comment-input:focus {
+    border-color: #e11d48;
+}
+
+.insta-comment-send {
+    width: 34px;
+    height: 34px;
+    border-radius: 12px;
+    border: none;
+    background: #ffe4e6;
+    color: #e11d48;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    flex-shrink: 0;
+    transition: all 0.15s;
+}
+
+.insta-comment-send:hover {
+    background: #e11d48;
+    color: #ffffff;
+}
+
+/* ==================== ۶. استایل دستیار هوشمند درسی پارمیس (Study Planner) ==================== */
+.study-sheet-panel {
+    background: #f8fafc;
+}
+
+.study-overview-card {
+    background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 55%, #8b5cf6 100%);
+    color: #ffffff;
+    border-radius: 22px;
+    padding: 16px 18px;
+    box-shadow: 0 10px 25px rgba(124, 58, 237, 0.25);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    flex-shrink: 0;
+}
+
+.study-overview-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.study-overview-title {
+    margin: 0 0 3px 0;
+    font-size: 15px;
+    font-weight: 800;
+}
+
+.study-overview-sub {
+    margin: 0;
+    font-size: 12px;
+    opacity: 0.9;
+}
+
+.study-percent-badge {
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(6px);
+    padding: 6px 12px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+}
+
+.study-progress-track {
+    width: 100%;
+    height: 9px;
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.study-progress-fill {
+    height: 100%;
+    background: #34d399;
+    border-radius: 10px;
+    transition: width 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.study-tabs {
+    display: flex;
+    background: var(--bg-surface);
+    padding: 5px;
+    border-radius: 16px;
+    border: 1px solid var(--border-subtle);
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.study-tab-btn {
+    flex: 1;
+    padding: 9px 10px;
+    border-radius: 12px;
+    border: none;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    transition: all 0.2s ease;
+}
+
+.study-tab-btn.active {
+    background: #f5f3ff;
+    color: #6d28d9;
+    box-shadow: 0 2px 6px rgba(109, 40, 217, 0.08);
+}
+
+.study-pane {
+    display: none;
+    flex-direction: column;
+    gap: 12px;
+    flex: 1;
+}
+
+.study-pane.active {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+}
+
+/* نوار فیلتر روزهای هفته */
+.study-days-bar {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+    flex-shrink: 0;
+}
+
+.study-days-bar::-webkit-scrollbar {
+    display: none;
+}
+
+.study-day-pill {
+    padding: 6px 13px;
+    border-radius: 12px;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-surface);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.study-day-pill.active {
+    background: #7c3aed;
+    color: #ffffff;
+    border-color: #7c3aed;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.22);
+}
+
+/* فرم افزودن برنامه درسی یا امتحان */
+.study-add-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 20px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    box-shadow: var(--shadow-card);
+    flex-shrink: 0;
+}
+
+.study-add-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.study-input,
+.study-select {
+    flex: 1;
+    border: 1px solid var(--border-subtle);
+    background: var(--bg-subtle);
+    border-radius: 12px;
+    padding: 9px 11px;
+    font-family: inherit;
+    font-size: 15px;
+    color: var(--text-primary);
+    outline: none;
+    min-width: 0;
+}
+
+.study-input::placeholder {
+    font-size: 12px;
+    color: var(--text-muted);
+}
+
+.study-input:focus,
+.study-select:focus {
+    background: var(--bg-surface);
+    border-color: #7c3aed;
+}
+
+.study-select {
+    flex: 0 0 105px;
+    font-size: 12.5px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.study-submit-btn {
+    padding: 9px 14px;
+    border-radius: 12px;
+    border: none;
+    background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    white-space: nowrap;
+    box-shadow: 0 4px 10px rgba(124, 58, 237, 0.22);
+    flex-shrink: 0;
+}
+
+.study-submit-btn.exam-btn {
+    background: linear-gradient(135deg, #db2777 0%, #f43f5e 100%);
+    box-shadow: 0 4px 10px rgba(219, 39, 119, 0.22);
+}
+
+.study-list-container {
+    display: flex;
+    flex-direction: column;
+    gap: 9px;
+    flex: 1;
+}
+
+.study-task-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 16px;
+    padding: 11px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    box-shadow: var(--shadow-card);
+    cursor: pointer;
+    transition: all 0.18s ease;
+}
+
+.study-task-card.done {
+    opacity: 0.72;
+    background: #f8fafc;
+}
+
+.study-task-info {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.study-task-title {
+    font-size: 13.5px;
+    font-weight: 700;
+    color: var(--text-primary);
+    word-break: break-word;
+}
+
+.study-task-card.done .study-task-title {
+    text-decoration: line-through;
+    color: var(--text-muted);
+}
+
+.study-task-tags {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+
+.study-day-badge {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: #f5f3ff;
+    color: #6d28d9;
+}
+
+.study-time-badge {
+    font-size: 10.5px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 8px;
+    background: var(--bg-subtle);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+/* کارت امتحانات */
+.study-exam-card {
+    background: var(--bg-surface);
+    border: 1px solid rgba(244, 63, 94, 0.18);
+    border-right: 4px solid #e11d48;
+    border-radius: 16px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    box-shadow: var(--shadow-card);
+}
+
+.study-exam-card.done {
+    border-right-color: var(--online);
+    border-color: var(--border-subtle);
+    opacity: 0.75;
+}
+
+.study-exam-right {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    min-width: 0;
+    flex: 1;
+}
+
+.study-exam-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 11px;
+    background: #fff1f2;
+    color: #e11d48;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    flex-shrink: 0;
+}
+
+.study-exam-card.done .study-exam-icon {
+    background: #ecfdf5;
+    color: var(--online);
+}
+
+.study-exam-details {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+}
+
+.study-exam-title {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 800;
+    color: var(--text-primary);
+}
+
+.study-exam-topic {
+    font-size: 12px;
+    color: var(--text-secondary);
+    word-break: break-word;
+}
+
+.study-exam-date {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #be123c;
+    margin-top: 2px;
+}
+
+
+/* ==================== ۷. استایل‌های نسخه ۱۶: نوتیفیکیشن، پست آلبومی (Carousel) و ویدیو ==================== */
+
+/* دکمه زنگوله نوتیفیکیشن در هوم */
+.notif-bell-btn {
+    position: relative;
+}
+
+.notif-status-dot {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #f59e0b;
+    border: 1.5px solid var(--bg-surface);
+    transition: background 0.25s ease, transform 0.25s ease;
+}
+
+.notif-status-dot.enabled {
+    background: var(--online);
+}
+
+.notif-status-dot.denied {
+    background: var(--danger);
+}
+
+/* پیش‌نمایش چندتایی (عکس و ویدیو) در باکس ساخت پست */
+.insta-preview-carousel {
+    width: 100%;
+    height: 100%;
+    min-height: 220px;
+    max-height: 320px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding: 10px;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.insta-preview-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+.insta-preview-slide {
+    flex: 0 0 88%;
+    height: 250px;
+    border-radius: 16px;
+    overflow: hidden;
+    position: relative;
+    scroll-snap-align: center;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    box-shadow: 0 8px 20px rgba(15, 23, 42, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.insta-preview-slide:only-child {
+    flex: 0 0 100%;
+}
+
+.insta-preview-slide img,
+.insta-preview-slide video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.insta-preview-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #ffffff;
+    font-size: 11px;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    pointer-events: none;
+}
+
+.insta-preview-remove-btn {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(239, 68, 68, 0.9);
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+    z-index: 5;
+}
+
+.insta-selected-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 6px 10px;
+    background: #fff1f2;
+    border: 1px solid rgba(225, 29, 72, 0.18);
+    border-radius: 14px;
+}
+
+.insta-selected-count {
+    font-size: 12px;
+    font-weight: 800;
+    color: #be123c;
+}
+
+.insta-selected-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.insta-add-more-btn {
+    padding: 6px 11px;
+    border-radius: 10px;
+    border: none;
+    background: #e11d48;
+    color: #ffffff;
+    font-family: inherit;
+    font-size: 11.5px;
+    font-weight: 700;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.insta-clear-all-btn {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    border: 1px solid rgba(225, 29, 72, 0.22);
+    background: #ffffff;
+    color: #e11d48;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+}
+
+/* اسلایدر پست‌های آلبومی (Carousel) و ویدیو در فید مینی‌اینستاگرام */
+.insta-carousel-track {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+}
+
+.insta-carousel-track::-webkit-scrollbar {
+    display: none;
+}
+
+.insta-carousel-slide {
+    flex: 0 0 100%;
+    width: 100%;
+    min-height: 240px;
+    max-height: 420px;
+    scroll-snap-align: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #0f172a;
+    overflow: hidden;
+}
+
+.insta-post-video {
+    width: 100%;
+    max-height: 420px;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+}
+
+/* شمارنده اسلاید در گوشه بالای پست آلبومی (مثلاً 1/3) */
+.insta-slide-counter-badge {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    font-size: 11.5px;
+    font-weight: 800;
+    padding: 4px 10px;
+    border-radius: 14px;
+    z-index: 6;
+    pointer-events: none;
+    letter-spacing: 0.5px;
+}
+
+/* دکمه قطع/وصل صدای ویدیو (کنار ویدیو دقیقاً مثل اینستاگرام) */
+.insta-video-mute-btn {
+    position: absolute;
+    bottom: 12px;
+    left: 12px;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(15, 23, 42, 0.72);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    z-index: 7;
+    transition: transform 0.15s ease, background 0.15s ease;
+}
+
+.insta-video-mute-btn:active {
+    transform: scale(0.9);
+}
+
+/* دکمه بزرگنمایی تمام‌صفحه روی اسلاید */
+.insta-fullscreen-trigger-btn {
+    position: absolute;
+    bottom: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    background: rgba(15, 23, 42, 0.62);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    color: #ffffff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    z-index: 7;
+}
+
+/* نقطه‌های نشانگر اسلاید (Carousel Dots) در نوار زیر پست */
+.insta-carousel-dots {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+}
+
+.insta-carousel-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #cbd5e1;
+    transition: all 0.22s ease;
+}
+
+.insta-carousel-dot.active {
+    width: 16px;
+    border-radius: 6px;
+    background: #e11d48;
+}
+
+/* مدال تمام‌صفحه (Fullscreen) برای بزرگ شدن ویدیو و عکس در صفحه گوشی */
+.insta-fullscreen-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(5, 8, 18, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    z-index: 2600;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    padding: calc(16px + env(safe-area-inset-top, 0px)) 12px calc(20px + env(safe-area-inset-bottom, 0px));
+}
+
+.insta-fullscreen-modal.active {
+    display: flex;
+    animation: fadeIn 0.2s ease;
+}
+
+.insta-fs-close-btn {
+    position: absolute;
+    top: calc(16px + env(safe-area-inset-top, 0px));
+    left: 16px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.14);
+    color: #ffffff;
+    font-size: 17px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+.insta-fs-content {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.insta-fs-content img,
+.insta-fs-content video {
+    max-width: 100%;
+    max-height: 88dvh;
+    border-radius: 16px;
+    object-fit: contain;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}

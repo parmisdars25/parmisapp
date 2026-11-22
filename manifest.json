@@ -1,0 +1,27 @@
+{
+  "name": "Parmis & Mahdi Private Space",
+  "short_name": "ParmisChat",
+  "description": "فضای اختصاصی مهدیو پارمیس",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f8fafc",
+  "theme_color": "#4f46e5",
+  "icons": [
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%23ec4899'/></linearGradient></defs><rect width='192' height='192' rx='44' fill='url(%23g)'/><path d='M96 142 C96 142 50 112 50 76 C50 58 64 45 80 45 C90 45 96 52 96 52 C96 52 102 45 112 45 C128 45 142 58 142 76 C142 112 96 142 96 142 Z' fill='%23ffffff'/></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><defs><linearGradient id='g' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%23ec4899'/></linearGradient></defs><rect width='512' height='512' rx='115' fill='url(%23g)'/><path d='M256 378 C256 378 134 298 134 202 C134 154 170 120 214 120 C240 120 256 138 256 138 C256 138 272 120 298 120 C342 120 378 154 378 202 C378 298 256 378 256 378 Z' fill='%23ffffff'/></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

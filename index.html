@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="ParmisChat">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#4f46e5">
+    <title>Private Space — نسخه ۲۰</title>
+
+    <!-- مانیفست و آیکون اپلیکیشن بومی (PWA) -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'><defs><linearGradient id='bg' x1='0%' y1='0%' x2='100%' y2='100%'><stop offset='0%' stop-color='%234f46e5'/><stop offset='100%' stop-color='%23ec4899'/></linearGradient></defs><rect width='180' height='180' rx='42' fill='url(%23bg)'/><path d='M90 132 C90 132 48 104 48 72 C48 56 61 44 76 44 C85 44 90 50 90 50 C90 50 95 44 104 44 C119 44 132 56 132 72 C132 104 90 132 90 132 Z' fill='%23ffffff'/></svg>">
+
+    <!-- پیش‌اتصال سریع برای کاهش تاخیر اولیه -->
+    <link rel="preconnect" href="https://cknciitavsagmhfnaiig.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://cknciitavsagmhfnaiig.supabase.co">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+    <!-- فونت وزیرمتن و آیکون‌ها -->
+    <link rel="stylesheet" href="https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- فایل استایل مجزا -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<!-- بنر هشدار آپدیت به نسخه جدید (OTA Update) -->
+<div id="otaUpdateBanner" class="ota-update-banner">
+    <div class="ota-banner-content">
+        <div class="ota-banner-icon"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+        <div class="ota-banner-text">
+            <strong>نسخهه جدیدمونن امادسسس</strong>
+            <span>بروزرسانیی کنننننن</span>
+        </div>
+    </div>
+    <div class="ota-banner-actions">
+        <button type="button" class="ota-update-btn" onclick="applyAppUpdate()">بروزرسانی</button>
+        <button type="button" class="ota-dismiss-btn" onclick="dismissUpdateBanner()"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+</div>
+
+<!-- صفحه ورود -->
+<div id="loginScreen" class="login-screen">
+    <div class="login-card">
+        <div class="login-logo">
+            <i class="fa-solid fa-lock"></i>
+        </div>
+        <h2>ورود</h2>
+        <p class="login-subtitle">بفرما تو دم در بده</p>
+        
+        <div class="input-group">
+            <label>نام کاربریت</label>
+            <input type="text" id="usernameInp" class="modern-input" placeholder="" autocomplete="off">
+        </div>
+        
+        <div class="input-group">
+            <label>رمز عبور</label>
+            <input type="password" id="passwordInp" class="modern-input" placeholder="••••">
+        </div>
+        
+        <div id="loginError" class="login-error">نام کاربریت یا رمز عبورتو اشتباه زدی</div>
+        
+        <button id="loginBtn" class="primary-btn">
+            <span>ورود به حساب</span>
+            <i class="fa-solid fa-arrow-left" style="font-size: 12px;"></i>
+        </button>
+    </div>
+</div>
+
+<!-- منوی اکشن پیام -->
+<div id="actionModal" class="modal-overlay" onclick="if(event.target===this) cancelAction()">
+    <div class="modal-card action-sheet">
+        <button id="replyActionBtn" class="action-item">
+            <span>ریپلای</span>
+            <i class="fa-solid fa-reply"></i>
+        </button>
+        <button id="editActionBtn" class="action-item">
+            <span>ویرایش کردن </span>
+            <i class="fa-solid fa-pen"></i>
+        </button>
+        <button id="likeActionBtn" class="action-item">
+            <span id="likeActionText">لایک کردن پیام هیهی</span>
+            <i class="fa-regular fa-heart"></i>
+        </button>
+        <button id="copyActionBtn" class="action-item">
+            <span>کپی متن</span>
+            <i class="fa-regular fa-copy"></i>
+        </button>
+        <button id="selectActionBtn" class="action-item">
+            <span>انتخاب چندتایییی</span>
+            <i class="fa-regular fa-circle-check"></i>
+        </button>
+        <div class="dropdown-divider"></div>
+        <button id="deleteActionBtn" class="action-item danger">
+            <span>حذف پیام</span>
+            <i class="fa-regular fa-trash-can"></i>
+        </button>
+    </div>
+</div>
+
+<!-- پروفایل پارتنر -->
+<div id="partnerProfileModal" class="modal-overlay" onclick="if(event.target===this) closePartnerProfile()">
+    <div class="modal-card">
+        <button class="modal-close-x" onclick="closePartnerProfile()"><i class="fa-solid fa-xmark"></i></button>
+        <div class="profile-pic-large" id="partnerProfilePic"></div>
+        <h3 class="profile-modal-name" id="partnerProfileName">...</h3>
+        <p class="profile-modal-status" id="partnerModalStatus">انلایننن</p>
+        
+        <div class="profile-bio-box">
+            <span class="profile-bio-label">درباره</span>
+            <div id="partnerProfileBio">...</div>
+        </div>
+    </div>
+</div>
+
+<!-- تنظیمات پروفایل من -->
+<div id="settingsModal" class="modal-overlay" onclick="if(event.target===this) closeSettings()">
+    <div class="modal-card">
+        <button class="modal-close-x" onclick="closeSettings()"><i class="fa-solid fa-xmark"></i></button>
+        <input type="file" id="fileInput" accept="image/*" style="display: none;">
+        
+        <div class="profile-pic-large profile-pic-editable" id="settingsProfilePic" title="تغییر عکس پروفایل"></div>
+        <button id="removeProfilePicBtn" type="button" class="remove-pic-btn" onclick="removeProfilePic()">
+            <i class="fa-regular fa-trash-can"></i>
+            <span>حذف عکس پروفایل</span>
+        </button>
+        <h3 class="profile-modal-name" id="settingsName" style="margin-bottom: 18px;">...</h3>
+        
+        <div class="input-group" style="margin-bottom: 18px;">
+            <label>بیوو</label>
+            <input type="text" id="settingsBioInput" class="modern-input" placeholder="بیو بذار برا خودتت" autocomplete="off">
+        </div>
+        
+        <button id="saveBioBtn" onclick="saveBio()" class="primary-btn">ذخیره تغییرات</button>
+    </div>
+</div>
+
+<!-- کانتینر اصلی برنامه -->
+<div class="app-container" id="appContainer" style="display: none;">
+    
+    <!-- ۱. صفحه هوم (داشبورد ۶ کارتی Bento Grid) -->
+    <div id="homeScreen" class="home-screen">
+        <div class="home-top-bar">
+            <div class="home-user-greeting" onclick="openSettings()" title="تنظیمات پروفایل من">
+                <div class="home-my-avatar" id="homeMyAvatar"></div>
+                <div class="greeting-texts">
+                    <h1 id="homeGreetingName">سلاممممممم</h1>
+                    <p>خوش اومدیی تاج سرمم</p>
+                </div>
+            </div>
+
+            <div class="header-left-group">
+                <button id="homeNotifBtn" onclick="enablePushNotifications()" class="icon-action-btn notif-bell-btn" title="وضعیت نوتیفیکیشن">
+                    <i class="fa-regular fa-bell"></i>
+                    <span id="notifStatusDot" class="notif-status-dot"></span>
+                </button>
+                <div class="dropdown">
+                    <button onclick="toggleMenu(event, 'homeDropdownMenu')" class="icon-action-btn" title="منو">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+                    <div id="homeDropdownMenu" class="dropdown-content">
+                        <div class="dropdown-item" onclick="openSettings()">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>تنظیمات پروفایل</span>
+                        </div>
+                        <div class="dropdown-item" id="notifMenuItem" onclick="enablePushNotifications()">
+                            <i class="fa-solid fa-bell"></i>
+                            <span id="notifMenuText">فعال‌سازی نوتیفیکیشن</span>
+                        </div>
+                        <div class="dropdown-item" id="installAppMenuItem" style="display: none;" onclick="triggerPwaInstall()">
+                            <i class="fa-solid fa-mobile-screen-button"></i>
+                            <span>نصب برنامه روی گوشیت</span>
+                        </div>
+                        <div class="dropdown-item" onclick="checkForUpdatesManual()">
+                            <i class="fa-solid fa-rotate"></i>
+                            <span>بررسی بروزرسانی </span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item danger" onclick="logout()">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span>خروج از حساب</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-label">بخش‌ های اپلیکیشن</div>
+
+        <!-- گرید کارت‌های مربعی (۶ کارت متقارن) -->
+        <div class="bento-grid">
+            <!-- کارت ۱: چت دو نفره با شمارنده پیام نخوانده -->
+            <div class="square-card" onclick="openChatView()">
+                <div class="card-top-row">
+                    <div class="card-avatar-box">
+                        <div class="card-avatar" id="homeCardPartnerAvatar"></div>
+                        <div class="card-online-dot" id="homeCardStatusDot"></div>
+                    </div>
+                    <span class="unread-badge" id="homeUnreadBadge">0</span>
+                </div>
+                <div class="card-bottom-info">
+                    <h3 class="card-title" id="homeChatCardTitle">گفتگو</h3>
+                    <p class="card-subtitle" id="homeChatCardSubtitle">در حال بارگذاری...</p>
+                </div>
+            </div>
+
+            <!-- کارت ۲: مینی‌اینستاگرام دونفره (آپدیت نسخه ۱۶: آلبومی + ویدیو) -->
+            <div class="square-card" onclick="openInstaSheet()">
+                <div class="card-top-row">
+                    <div class="card-icon-box insta-card">
+                        <i class="fa-solid fa-camera-retro"></i>
+                    </div>
+                    <span class="card-stat-pill" id="homeInstaCount">جدید</span>
+                </div>
+                <div class="card-bottom-info">
+                    <h3 class="card-title">مینی ‌اینستاگرام</h3>
+                    <p class="card-subtitle" id="homeInstaSubtitle">البوم و پست‌ های ما</p>
+                </div>
+            </div>
+
+            <!-- کارت ۳: دفترچه خاطرات -->
+            <div class="square-card" onclick="openNotebookSheet()">
+                <div class="card-top-row">
+                    <div class="card-icon-box memories-card">
+                        <i class="fa-solid fa-book-open"></i>
+                    </div>
+                    <span class="card-stat-pill" id="homeMemoriesCount">جدید</span>
+                </div>
+                <div class="card-bottom-info">
+                    <h3 class="card-title">دفترچه خاطرات</h3>
+                    <p class="card-subtitle" id="homeMemoriesSubtitle">ثبت لحظاتمون</p>
+                </div>
+            </div>
+
+            <!-- کارت ۴: کارایی که باید انجام بدیم -->
+            <div class="square-card" onclick="openTodoSheet()">
+                <div class="card-top-row">
+                    <div class="card-icon-box todo-card">
+                        <i class="fa-solid fa-list-check"></i>
+                    </div>
+                    <span class="card-stat-pill" id="homeTodoCount">0/0</span>
+                </div>
+                <div class="card-bottom-info">
+                    <h3 class="card-title">کارایی که باید انجام بدیم</h3>
+                    <p class="card-subtitle" id="homeTodoSubtitle">لیست برنامه‌ها و ارزوهامون</p>
+                </div>
+            </div>
+
+            <!-- کارت ۵: دستیار درسی پارمیس -->
+            <div class="square-card" onclick="openStudySheet()">
+                <div class="card-top-row">
+                    <div class="card-icon-box study-card">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <span class="card-stat-pill" id="homeStudyCount">0%</span>
+                </div>
+                <div class="card-bottom-info">
+                    <h3 class="card-title">دستیار درسی پارمیس جونم</h3>
+                    <p class="card-subtitle" id="homeStudySubtitle">امتحانات و برنامه ‌ریزی</p>
+                </div>
+            </div>
+
+            <!-- کارت ۶: سایت دنیای پارمیس (تبدیل به div ضد فیلتر تبلیغاتی نتلیفای) -->
+            <div class="square-card" id="parmisWorldCard" onclick="openParmisWorld()">
+                <div class="card-top-row">
+                    <div class="card-icon-box parmis-world">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                    </div>
+                    <div class="card-external-arrow">
+                        <i class="fa-solid fa-arrow-up-left-from-square" style="transform: scaleX(-1);"></i>
+                    </div>
+                </div>
+                <div class="card-bottom-info">
+                    <h3 class="card-title">دنیای پارمیس</h3>
+                    <p class="card-subtitle">ورود به وب ‌سایت اختصاصیت</p>
+                </div>
+            </div>
+            <!-- کارت ۷: مینی‌گیم نقاشی و حدس کلمه (پیکاسوی دونفره — نسخه ۱۷) -->
+            <div class="square-card" onclick="window.location.href='game-draw.html'" style="grid-column: 1 / -1; aspect-ratio: auto; min-height: 118px; background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%); border-color: rgba(124, 58, 237, 0.22);">
+                <div class="card-top-row">
+                    <div class="card-icon-box" style="background: linear-gradient(135deg, #4f46e5 0%, #ec4899 100%); color: #ffffff; box-shadow: 0 6px 16px rgba(79, 70, 229, 0.25);">
+                        <i class="fa-solid fa-palette"></i>
+                    </div>
+                    <span class="card-stat-pill" style="background: #eef2ff; color: #4f46e5; border-color: rgba(79, 70, 229, 0.2);">بازی دختر برای هنرمندم</span>
+                </div>
+                <div class="card-bottom-info" style="margin-top: 10px;">
+                    <h3 class="card-title">بازی نقاشیو حدس کلمه </h3>
+                    <p class="card-subtitle">دقیقااا مثل اون بازیه که قبلا باهم بازی میکردیم</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ۲. صفحه چت -->
+    <div id="chatScreen" class="chat-screen">
+        <header class="chat-header">
+            <div class="header-right-group">
+                <button class="back-btn" onclick="openHomeView()" title="بازگشت به خانه">
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+                <div class="partner-info-box" onclick="openPartnerProfile()">
+                    <div class="avatar-wrapper">
+                        <div class="avatar" id="headerPartnerAvatar"></div>
+                        <div class="online-dot" id="statusDot"></div>
+                    </div>
+                    <div class="user-info">
+                        <h2 class="user-name" id="userNameDisplay">...</h2>
+                        <div class="user-status" id="userStatusText">در حال اتصال...</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="header-left-group">
+                <button id="soundToggleBtn" onclick="toggleSoundMute()" class="icon-action-btn" title="وضعیت افکت صوتی">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+                <div class="dropdown">
+                    <button onclick="toggleMenu(event, 'chatDropdownMenu')" class="icon-action-btn" title="منو">
+                        <i class="fa-solid fa-ellipsis-vertical"></i>
+                    </button>
+                    <div id="chatDropdownMenu" class="dropdown-content">
+                        <div class="dropdown-item" onclick="openSearchBar()">
+                            <i class="fa-solid fa-magnifying-glass"></i>
+                            <span>جستجو تو پیامامون</span>
+                        </div>
+                        <div class="dropdown-item" onclick="enterSelectionMode()">
+                            <i class="fa-regular fa-circle-check"></i>
+                            <span>انتخاب پیاما</span>
+                        </div>
+                        <div class="dropdown-item" onclick="openSettings()">
+                            <i class="fa-solid fa-sliders"></i>
+                            <span>تنظیمات پروفایل</span>
+                        </div>
+                        <div class="dropdown-divider"></div>
+                        <div class="dropdown-item danger" onclick="logout()">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
+                            <span>خروج از حساب</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- نوار جستجوی پیام‌ها -->
+        <div id="chatSearchBar" class="chat-search-bar">
+            <div class="search-input-wrap">
+                <i class="fa-solid fa-magnifying-glass"></i>
+                <input type="text" id="chatSearchInput" class="chat-search-input" placeholder="جستجو تو متن پیاما..." autocomplete="off">
+                <span id="searchCounter" class="search-counter"></span>
+            </div>
+            <button type="button" class="search-nav-btn" onclick="navigateSearch(-1)" title="قبلی">
+                <i class="fa-solid fa-chevron-up"></i>
+            </button>
+            <button type="button" class="search-nav-btn" onclick="navigateSearch(1)" title="بعدی">
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+            <button type="button" class="search-nav-btn" onclick="closeSearchBar()" title="بستن">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        
+        <main class="chat-messages" id="chatMessages">
+            <div class="empty-state">
+                <span>در حال بارگذاری پیاما...</span>
+            </div>
+        </main>
+
+        <!-- دکمه شناور اسکرول به پایین -->
+        <button id="scrollBottomBtn" class="scroll-bottom-btn" type="button" onclick="scrollToBottom(true)" title="رفتن به اخرین پیام">
+            <i class="fa-solid fa-chevron-down"></i>
+        </button>
+        
+        <div class="chat-input-wrapper">
+            <!-- نوار عملیات انتخاب چندتایی -->
+            <div id="selectionBar" class="selection-bar">
+                <div class="selection-right">
+                    <button type="button" class="selection-cancel-btn" onclick="exitSelectionMode()" title="لغو انتخاب">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <span id="selectionCountText" class="selection-count-text">0 پیام انتخاب شده</span>
+                </div>
+                <div class="selection-actions">
+                    <button type="button" id="bulkCopyBtn" class="selection-action-btn" onclick="copySelectedMessages()">
+                        <i class="fa-regular fa-copy"></i>
+                        <span>کپی</span>
+                    </button>
+                    <button type="button" id="bulkDeleteBtn" class="selection-action-btn danger" onclick="deleteSelectedMessages()">
+                        <i class="fa-regular fa-trash-can"></i>
+                        <span>حذف</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- پنل ایموجی، استیکر و گیف -->
+            <div id="emojiPanel" class="emoji-panel" onclick="event.stopPropagation()">
+                <div class="emoji-tabs">
+                    <button class="emoji-tab-btn active" id="btn-emoji" onclick="switchEmojiTab('emoji')">ایموجی ‌ها</button>
+                    <button class="emoji-tab-btn" id="btn-sticker" onclick="switchEmojiTab('sticker')">استیکر</button>
+                    <button class="emoji-tab-btn" id="btn-gif" onclick="switchEmojiTab('gif')">گیف (GIF)</button>
+                </div>
+                
+                <div class="emoji-content-pane active" id="pane-emoji"></div>
+                <div class="emoji-content-pane" id="pane-sticker">
+                    <div class="coming-soon-box">
+                        <i class="fa-regular fa-note-sticky" style="font-size: 24px;"></i>
+                        <span>فعلاااا چیزی نذاشتم بچم بعداا میذارم</span>
+                    </div>
+                </div>
+                <div class="emoji-content-pane" id="pane-gif">
+                    <div class="coming-soon-box">
+                        <i class="fa-solid fa-film" style="font-size: 24px;"></i>
+                        <span>ایشالااا بعداا میذارممم</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- پیش‌نمایش ریپلای یا ویرایش پیام -->
+            <div id="replyPreview" class="reply-preview">
+                <i id="replyPreviewIcon" class="fa-solid fa-reply reply-mode-icon"></i>
+                <div class="reply-preview-content">
+                    <span class="reply-preview-sender" id="replyPreviewSender">...</span>
+                    <span id="replyPreviewText">...</span>
+                </div>
+                <button class="reply-preview-close" type="button" onclick="cancelReplyOrEdit()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <!-- کادر تایپ و ارسال -->
+            <footer class="chat-input-bar">
+                <button class="send-btn" id="sendBtn" type="button" title="ارسال">
+                    <i id="sendBtnIcon" class="fa-solid fa-paper-plane"></i>
+                </button>
+                <div class="input-capsule">
+                    <input type="text" class="input-box" placeholder="پیام خود را بنویسید..." id="messageInput" name="chat_msg_field" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" enterkeyhint="send">
+                    <button class="emoji-toggle-btn" type="button" onclick="toggleEmojiPanel(event)" title="ایموجی">
+                        <i class="fa-regular fa-face-smile"></i>
+                    </button>
+                </div>
+            </footer>
+        </div>
+    </div>
+
+    <!-- ۳. پنل اسلایدی دفترچه خاطرات (Bottom Sheet) -->
+    <div id="notebookSheet" class="bottom-sheet-overlay" onclick="if(event.target===this) closeNotebookSheet()">
+        <div class="bottom-sheet-panel notebook-sheet-bg">
+            <div class="sheet-drag-bar"></div>
+            <div class="sheet-header">
+                <h3 class="sheet-header-title">
+                    <i class="fa-solid fa-feather-pointed" style="color: #d97706;"></i>
+                    <span>دفترچه خاطرات ما</span>
+                </h3>
+                <div class="sheet-header-actions">
+                    <button type="button" class="sheet-action-pill" onclick="openNotebookEditor()">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>خاطره جدید</span>
+                    </button>
+                    <button type="button" class="sheet-close-btn" onclick="closeNotebookSheet()" title="بستن">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sheet-body">
+                <div id="notebookEditorBox" class="notebook-editor-box">
+                    <input type="text" id="memoryTitleInp" class="notebook-title-input" placeholder="عنوان خاطره (مثلاا فلان دیتمون)" autocomplete="off">
+                    <textarea id="memoryTextInp" class="notebook-text-input" placeholder="متن خاطره رو روی خط های این برگه بنویس بچمم..."></textarea>
+                    <div class="notebook-editor-footer">
+                        <button type="button" class="notebook-cancel-btn" onclick="closeNotebookEditor()">انصراف</button>
+                        <button type="button" id="saveMemoryBtn" class="notebook-save-btn" onclick="saveMemory()">
+                            <span id="saveMemoryBtnText">ثبت تو دفترچه خاطرات</span>
+                        </button>
+                    </div>
+                </div>
+                <div id="memoriesList" style="display: flex; flex-direction: column; gap: 14px; flex: 1;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ۴. پنل اسلایدی کارایی که باید انجام بدیم (Bottom Sheet) -->
+    <div id="todoSheet" class="bottom-sheet-overlay" onclick="if(event.target===this) closeTodoSheet()">
+        <div class="bottom-sheet-panel">
+            <div class="sheet-drag-bar"></div>
+            <div class="sheet-header">
+                <h3 class="sheet-header-title">
+                    <i class="fa-solid fa-list-check" style="color: #059669;"></i>
+                    <span>کارایی که باید انجام بدیم</span>
+                </h3>
+                <div class="sheet-header-actions">
+                    <button type="button" class="sheet-close-btn" onclick="closeTodoSheet()" title="بستن">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sheet-body">
+                <div class="todo-create-cat-bar">
+                    <input type="text" id="newCategoryTitleInp" class="todo-create-cat-input" placeholder="نام سرفصل جدید (کافه ‌ها کارایی که باید بکنیم و...)" autocomplete="off">
+                    <button type="button" id="cancelCategoryEditBtn" class="todo-cancel-cat-btn" onclick="cancelCategoryRename()" title="لغو ویرایش">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                    <button type="button" id="addCategoryBtn" class="todo-create-cat-btn" onclick="addTodoCategory()">
+                        <i class="fa-solid fa-folder-plus"></i>
+                        <span id="addCategoryBtnText">سرفصل جدید</span>
+                    </button>
+                </div>
+                <div id="todoCategoriesList" style="display: flex; flex-direction: column; gap: 14px; flex: 1;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ۵. پنل اسلایدی مینی‌اینستاگرام دونفره (Mini-Instagram Bottom Sheet — نسخه ۱۶) -->
+    <div id="instaSheet" class="bottom-sheet-overlay" onclick="if(event.target===this) closeInstaSheet()">
+        <div class="bottom-sheet-panel insta-sheet-panel">
+            <div class="sheet-drag-bar"></div>
+            <div class="sheet-header">
+                <h3 class="sheet-header-title">
+                    <i class="fa-solid fa-camera-retro" style="color: #e11d48;"></i>
+                    <span>مینی ‌اینستاگرام ما</span>
+                </h3>
+                <div class="sheet-header-actions">
+                    <button type="button" class="sheet-action-pill insta-pill-btn" onclick="openInstaPostCreator()">
+                        <i class="fa-solid fa-plus"></i>
+                        <span>پست جدید</span>
+                    </button>
+                    <button type="button" class="sheet-close-btn" onclick="closeInstaSheet()" title="بستن">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sheet-body insta-sheet-body">
+                <!-- باکس ساخت و آپلود پست جدید (پشتیبانی از چند عکس و ویدیو همزمان) -->
+                <div id="instaCreatorBox" class="insta-creator-box">
+                    <input type="file" id="instaFileInput" accept="image/*,video/*" multiple style="display: none;">
+                    <div id="instaImagePreviewBox" class="insta-image-picker" onclick="if(!window.hasSelectedInstaMedia?.()) document.getElementById('instaFileInput').click()">
+                        <div id="instaPickerPlaceholder" class="insta-picker-placeholder" onclick="event.stopPropagation(); document.getElementById('instaFileInput').click()">
+                            <i class="fa-solid fa-photo-film"></i>
+                            <span>برای انتخاب عکس یا ویدیو از گالریت اینجارو بزن نفسم</span>
+                            <small>میتونی چند تا عکس و ویدیو رو با هم انتخاب کنی (آلبومی)</small>
+                        </div>
+                        <img id="instaPreviewImg" class="insta-preview-img" src="" alt="Preview" style="display: none;">
+                        <!-- اسلایدر پیش‌نمایش فایل‌های انتخاب‌شده در نسخه ۱۶ -->
+                        <div id="instaPreviewCarousel" class="insta-preview-carousel" style="display: none;"></div>
+                    </div>
+
+                    <!-- نوار ابزار مدیریت اسلایدهای انتخاب‌شده -->
+                    <div id="instaSelectedToolbar" class="insta-selected-toolbar" style="display: none;">
+                        <span id="instaSelectedCount" class="insta-selected-count">0 اسلاید انتخاب شده</span>
+                        <div class="insta-selected-actions">
+                            <button type="button" class="insta-add-more-btn" onclick="document.getElementById('instaFileInput').click()">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>افزودن عکس/ویدیو</span>
+                            </button>
+                            <button type="button" class="insta-clear-all-btn" onclick="clearSelectedInstaMedia()">
+                                <i class="fa-regular fa-trash-can"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <input type="text" id="instaCaptionInp" class="modern-input" placeholder="کپشن این پست رو بنویس..." autocomplete="off">
+                    <div id="instaUploadStatus" class="insta-upload-status" style="display: none;">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i>
+                        <span id="instaUploadStatusText">درحال اپلود عکس هیهیهیهییهییهییی...</span>
+                    </div>
+                    <div class="notebook-editor-footer">
+                        <button type="button" class="notebook-cancel-btn" onclick="closeInstaPostCreator()">انصراف</button>
+                        <button type="button" id="publishInstaBtn" class="insta-publish-btn" onclick="publishInstaPost()">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>انتشار پست</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- فید پست‌ها با اسکرول اسنپ و انیمیشن ورق زدن -->
+                <div id="instaFeedList" class="insta-feed-list"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ۶. پنل اسلایدی دستیار درسی پارمیس (Study Planner Bottom Sheet) -->
+    <div id="studySheet" class="bottom-sheet-overlay" onclick="if(event.target===this) closeStudySheet()">
+        <div class="bottom-sheet-panel study-sheet-panel">
+            <div class="sheet-drag-bar"></div>
+            <div class="sheet-header">
+                <h3 class="sheet-header-title">
+                    <i class="fa-solid fa-graduation-cap" style="color: #7c3aed;"></i>
+                    <span>دستیار درسی پارمیس جونم</span>
+                </h3>
+                <div class="sheet-header-actions">
+                    <button type="button" class="sheet-close-btn" onclick="closeStudySheet()" title="بستن">
+                        <i class="fa-solid fa-chevron-down"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="sheet-body">
+                <!-- کارت پیشرفت مطالعه -->
+                <div class="study-overview-card">
+                    <div class="study-overview-top">
+                        <div>
+                            <h4 class="study-overview-title">پیشرفت برنامه درسی</h4>
+                            <p id="studyProgressLabel" class="study-overview-sub">امادههه برای یه روزز پر انرژییی</p>
+                        </div>
+                        <div id="studyProgressPercent" class="study-percent-badge">0%</div>
+                    </div>
+                    <div class="study-progress-track">
+                        <div id="studyProgressBarFill" class="study-progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+
+                <!-- تب‌های دستیار درسی -->
+                <div class="study-tabs">
+                    <button type="button" id="studyTabBtn-planner" class="study-tab-btn active" onclick="switchStudyTab('planner')">
+                        <i class="fa-solid fa-calendar-check"></i>
+                        <span>برنامه مطالعه هفتگی</span>
+                    </button>
+                    <button type="button" id="studyTabBtn-exams" class="study-tab-btn" onclick="switchStudyTab('exams')">
+                        <i class="fa-solid fa-bell"></i>
+                        <span>ردیاب امتحانات</span>
+                    </button>
+                </div>
+
+                <!-- تب ۱: برنامه مطالعه روزانه/هفتگی -->
+                <div id="studyPane-planner" class="study-pane active">
+                    <!-- فیلتر روزهای هفته -->
+                    <div class="study-days-bar" id="studyDaysFilterBar">
+                        <button type="button" class="study-day-pill active" onclick="filterStudyDay('همه')">همه روزها</button>
+                        <button type="button" class="study-day-pill" onclick="filterStudyDay('شنبه')">شنبه</button>
+                        <button type="button" class="study-day-pill" onclick="filterStudyDay('یکشنبه')">یکشنبه</button>
+                        <button type="button" class="study-day-pill" onclick="filterStudyDay('دوشنبه')">دوشنبه</button>
+                        <button type="button" class="study-day-pill" onclick="filterStudyDay('سه‌شنبه')">سه‌شنبه</button>
+                        <button type="button" class="study-day-pill" onclick="filterStudyDay('چهارشنبه')">چهارشنبه</button>
+                        <button type="button" class="study-day-pill" onclick="filterStudyDay('پنجشنبه')">پنجشنبه</button>
+                        <button type="button" class="study-day-pill" onclick="filterStudyDay('جمعه')">جمعه</button>
+                    </div>
+
+                    <!-- فرم افزودن درس به برنامه -->
+                    <div class="study-add-card">
+                        <div class="study-add-row">
+                            <input type="text" id="studyTaskTitleInp" class="study-input" placeholder="اسم درس و مبحث (مثلااا تاریخ فصل دو)..." autocomplete="off">
+                        </div>
+                        <div class="study-add-row">
+                            <select id="studyTaskDaySelect" class="study-select">
+                                <option value="شنبه">شنبه</option>
+                                <option value="یکشنبه">یکشنبه</option>
+                                <option value="دوشنبه">دوشنبه</option>
+                                <option value="سه‌شنبه">سه‌شنبه</option>
+                                <option value="چهارشنبه">چهارشنبه</option>
+                                <option value="پنجشنبه">پنجشنبه</option>
+                                <option value="جمعه">جمعه</option>
+                            </select>
+                            <input type="text" id="studyTaskTimeInp" class="study-input" placeholder="ساعت یا مدت (مثلااا ۲ ساعت)" autocomplete="off">
+                            <button type="button" class="study-submit-btn" onclick="addStudyTask()">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>افزودن</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="studyTasksList" class="study-list-container"></div>
+                </div>
+
+                <!-- تب ۲: ردیاب امتحانات طول هفته -->
+                <div id="studyPane-exams" class="study-pane">
+                    <div class="study-add-card">
+                        <div class="study-add-row">
+                            <input type="text" id="examTitleInp" class="study-input" placeholder="اسم درس امتحان (مثلاا امتحان فلسفه)..." autocomplete="off">
+                        </div>
+                        <div class="study-add-row">
+                            <input type="text" id="examDateInp" class="study-input" placeholder="روز و تاریخ (مثلا دوشنبه ۲۰ آبان)" autocomplete="off">
+                        </div>
+                        <div class="study-add-row">
+                            <input type="text" id="examTopicInp" class="study-input" placeholder="مباحث یا توضیحات امتحان..." autocomplete="off">
+                            <button type="button" class="study-submit-btn exam-btn" onclick="addExamItem()">
+                                <i class="fa-solid fa-plus"></i>
+                                <span>ثبت امتحان</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div id="studyExamsList" class="study-list-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ۷. نمایشگر تمام‌صفحه ویدیو و تصویر مینی‌اینستاگرام (جدید در نسخه ۱۶) -->
+    <div id="instaFullscreenModal" class="insta-fullscreen-modal" onclick="if(event.target===this) closeInstaFullscreen()">
+        <button type="button" class="insta-fs-close-btn" onclick="closeInstaFullscreen()" title="بستن">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <div id="instaFullscreenContent" class="insta-fs-content"></div>
+    </div>
+
+</div>
+
+<!-- کتابخانه سبک Supabase v2 + نقطه ورود ماژولار برنامه -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module" src="app.js"></script>
+</body>
+</html>

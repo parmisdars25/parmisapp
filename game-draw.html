@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover, interactive-widget=resizes-content">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="theme-color" content="#4f46e5">
+    <title>پیکاسوی دونفره 🎨 — نسخه ۲۰</title>
+
+    <!-- پیش‌اتصال سریع برای کاهش تاخیر اولیه -->
+    <link rel="preconnect" href="https://cknciitavsagmhfnaiig.supabase.co" crossorigin>
+    <link rel="dns-prefetch" href="https://cknciitavsagmhfnaiig.supabase.co">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+
+    <!-- فونت وزیرمتن و آیکون‌ها -->
+    <!-- فونت غیرمسدودکننده (در صورت کندی CDN هیچ تاخیری در باز شدن صفحه ایجاد نمی‌کند) -->
+    <link rel="stylesheet" href="https://cdn.fontcdn.ir/Font/Persian/Vazir/Vazir.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/rastikerdar/vazirmatn@v33.0.0/Vazirmatn-font-face.css" media="print" onload="this.media='all'">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- استایل اختصاصی بازی نقاشی -->
+    <link rel="stylesheet" href="game-draw.css">
+</head>
+<body>
+
+<!-- بوم کاغذ رنگی (Confetti) برای جشن پیروزی -->
+<canvas id="confettiCanvas" class="confetti-canvas"></canvas>
+
+<!-- شمارش معکوس ۳..۲..۱ شروع بازی پس از Ready هر دو نفر -->
+<div id="countdownOverlay" class="countdown-overlay">
+    <div class="countdown-card">
+        <span class="countdown-label">هر دو نفر آماده! شروع بازی در...</span>
+        <div id="countdownNumber" class="countdown-number">3</div>
+    </div>
+</div>
+
+<div class="game-app-container" id="gameAppContainer">
+
+    <!-- هدر بالای بازی -->
+    <header class="game-header">
+        <div class="header-right">
+            <button type="button" class="back-home-btn" onclick="goBackHome()" title="بازگشت به خانه">
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+            <div class="game-title-box">
+                <h1 class="game-main-title">پیکاسوی دونفره 🎨</h1>
+                <div class="partner-live-badge" id="partnerPresenceBadge">
+                    <span class="presence-dot" id="partnerPresenceDot"></span>
+                    <span id="partnerPresenceText">در حال بررسی...</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- امتیازات زنده دست فعلی در هدر + دکمه اتمام بازی -->
+        <div class="header-left-wrap">
+            <div class="header-scoreboard" id="headerScoreboard" style="display: none;">
+                <div class="score-pill" id="scorePillMahdi">
+                    <span class="score-name">مهدی</span>
+                    <strong class="score-val" id="liveScoreMahdi">0</strong>
+                </div>
+                <div class="score-target-badge" id="headerTargetBadge" title="سقف امتیاز این بازی">
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    <span id="liveTargetScore">30</span>
+                </div>
+                <div class="score-pill" id="scorePillParmis">
+                    <span class="score-name">پارمیس</span>
+                    <strong class="score-val" id="liveScoreParmis">0</strong>
+                </div>
+            </div>
+
+            <button type="button" id="headerEndMatchBtn" class="end-match-btn" style="display: none;" onclick="endCurrentMatch()" title="اتمام و بستن بازی">
+                <i class="fa-solid fa-power-off"></i>
+                <span>اتمام</span>
+            </button>
+        </div>
+    </header>
+
+    <!-- ==================== ۱. نمای اتاق انتظار و سیستم آمادگی دوطرفه (Lobby View) ==================== -->
+    <main id="lobbyView" class="lobby-view">
+        
+        <!-- کارت تابلو افتخارات کل تاریخ (All-Time Leaderboard) -->
+        <section class="leaderboard-card">
+            <div class="leaderboard-header">
+                <i class="fa-solid fa-trophy"></i>
+                <span>تابلو افتخارات کل تاریخ ما</span>
+            </div>
+            <div class="leaderboard-body">
+                <div class="champ-box">
+                    <div class="champ-avatar-wrap">
+                        <div class="champ-avatar" id="lobbyAvatarMahdi"></div>
+                        <span class="player-online-ring" id="onlineRingMahdi"></span>
+                    </div>
+                    <span class="champ-name">مهدی</span>
+                    <div class="champ-wins-pill">
+                        <strong id="totalWinsMahdi">0</strong>
+                        <span>بُرد</span>
+                    </div>
+                </div>
+
+                <div class="vs-divider">
+                    <div class="vs-circle">VS</div>
+                    <span class="total-matches-label" id="totalMatchesPlayed">۰ بازی ثبت‌شده</span>
+                </div>
+
+                <div class="champ-box">
+                    <div class="champ-avatar-wrap">
+                        <div class="champ-avatar" id="lobbyAvatarParmis"></div>
+                        <span class="player-online-ring" id="onlineRingParmis"></span>
+                    </div>
+                    <span class="champ-name">پارمیس</span>
+                    <div class="champ-wins-pill">
+                        <strong id="totalWinsParmis">0</strong>
+                        <span>بُرد</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- باکس وضعیت آمادگی دوطرفه (Ready Status Box) -->
+        <section class="ready-status-card">
+            <div class="ready-card-header">
+                <i class="fa-solid fa-user-check"></i>
+                <span>وضعیت آمادگی بازیکنان برای شروع</span>
+            </div>
+            <div class="ready-players-row">
+                <div class="ready-player-box" id="readyBoxMahdi">
+                    <span class="ready-player-name">مهدی</span>
+                    <span class="ready-state-pill" id="readyPillMahdi">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>در انتظار...</span>
+                    </span>
+                </div>
+                <div class="ready-player-box" id="readyBoxParmis">
+                    <span class="ready-player-name">پارمیس</span>
+                    <span class="ready-state-pill" id="readyPillParmis">
+                        <i class="fa-regular fa-clock"></i>
+                        <span>در انتظار...</span>
+                    </span>
+                </div>
+            </div>
+            <p class="ready-helper-note" id="readyHelperNote">
+                وقتی هر دو نفر وارد این صفحه بشن و «آماده‌ام» رو بزنن، بازی خودکار شروع میشه! 🚀
+            </p>
+        </section>
+
+        <!-- کارت تنظیمات دست جدید (هماهنگ بین دو نفر) -->
+        <section class="settings-card">
+            <div class="settings-group">
+                <label class="settings-label">
+                    <i class="fa-solid fa-bullseye"></i>
+                    <span>سقف امتیاز برای برنده شدن:</span>
+                </label>
+                <div class="options-grid" id="targetPointsGroup">
+                    <button type="button" class="option-pill" data-points="20" onclick="selectTargetPoints(20)">
+                        <strong>۲۰ امتیازی</strong>
+                        <small>رقابت سریع</small>
+                    </button>
+                    <button type="button" class="option-pill active" data-points="30" onclick="selectTargetPoints(30)">
+                        <strong>۳۰ امتیازی</strong>
+                        <small>استاندارد</small>
+                    </button>
+                    <button type="button" class="option-pill" data-points="50" onclick="selectTargetPoints(50)">
+                        <strong>۵۰ امتیازی</strong>
+                        <small>ماراتن نفس‌گیر</small>
+                    </button>
+                </div>
+            </div>
+
+            <div class="settings-group">
+                <label class="settings-label">
+                    <i class="fa-regular fa-clock"></i>
+                    <span>زمان هر راند نقاشی:</span>
+                </label>
+                <div class="options-grid two-cols" id="roundTimeGroup">
+                    <button type="button" class="option-pill" data-seconds="90" onclick="selectRoundTime(90)">
+                        <strong>۹۰ ثانیه</strong>
+                        <small>۱.۵ دقیقه (هیجانی)</small>
+                    </button>
+                    <button type="button" class="option-pill active" data-seconds="120" onclick="selectRoundTime(120)">
+                        <strong>۱۲۰ ثانیه</strong>
+                        <small>۲ دقیقه (فرصت کافی)</small>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- دکمه آماده‌ام (Ready) یا ادامه بازی فعال -->
+        <div class="lobby-actions">
+            <button type="button" id="toggleReadyBtn" class="ready-toggle-btn" onclick="toggleMyReadyState()">
+                <i class="fa-solid fa-circle-check" id="readyBtnIcon"></i>
+                <span id="readyBtnText">آماده‌ام! (Ready)</span>
+            </button>
+
+            <div id="activeMatchResumeBar" class="active-match-resume-bar" style="display: none;">
+                <button type="button" class="resume-match-btn" onclick="resumeExistingMatch()">
+                    <i class="fa-solid fa-play"></i>
+                    <span id="resumeMatchText">ورود به بازیِ در حال اجرا</span>
+                </button>
+                <button type="button" class="terminate-match-btn" onclick="endCurrentMatch()" title="بستن بازی قبلی">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>لغو بازی قبلی</span>
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- ==================== ۲. نمای اصلی محیط بازی (Game Arena View) ==================== -->
+    <main id="gameArenaView" class="game-arena-view" style="display: none;">
+
+        <!-- نوار تایمر و وضعیت راند -->
+        <div class="arena-top-bar">
+            <div class="timer-row">
+                <div class="round-badge" id="roundNumberBadge">راند ۱</div>
+                <div class="speed-bonus-indicator" id="speedBonusIndicator">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span id="speedBonusText">جایزه سرعت: +۳ امتیاز</span>
+                </div>
+                <div class="timer-pill" id="timerPill">
+                    <i class="fa-regular fa-clock"></i>
+                    <span id="timerCountText">02:00</span>
+                </div>
+            </div>
+            <div class="timer-progress-track">
+                <div id="timerProgressBar" class="timer-progress-fill" style="width: 100%;"></div>
+            </div>
+
+            <!-- بنر مخصوص نقاش -->
+            <div id="drawerRoleBanner" class="role-banner drawer-banner" style="display: none;">
+                <div class="banner-right">
+                    <span class="role-tag">نوبت نقاشی توئه 🎨</span>
+                    <div class="secret-word-line">
+                        <span>کلمه:</span>
+                        <strong id="drawerSecretWord">...</strong>
+                    </div>
+                </div>
+                <div class="banner-actions">
+                    <button type="button" class="mini-banner-btn" id="changeWordBtn" onclick="changeSecretWord()" title="عوض کردن کلمه">
+                        <i class="fa-solid fa-shuffle"></i>
+                        <span id="changeWordCountText">تعویض (۲)</span>
+                    </button>
+                    <button type="button" class="mini-banner-btn danger" onclick="skipCurrentTurn()" title="رد کردن این کلمه">
+                        <i class="fa-regular fa-flag"></i>
+                        <span>رد کردن</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- بنر مخصوص حدس‌زننده -->
+            <div id="guesserRoleBanner" class="role-banner guesser-banner" style="display: none;">
+                <div class="banner-right">
+                    <span class="role-tag" id="guesserStatusTitle">پارتنرت داره می‌کشه 🤔</span>
+                    <div class="word-mask-box">
+                        <span id="wordMaskDisplay" class="word-mask-letters">_ _ _ _ _</span>
+                        <span id="wordLengthBadge" class="word-length-pill">۵ حرفی</span>
+                    </div>
+                </div>
+                <div class="banner-actions">
+                    <button type="button" class="mini-banner-btn hint-btn" id="revealHintBtn" onclick="useLetterHint()" title="نمایش یک حرف راهنما">
+                        <i class="fa-regular fa-lightbulb"></i>
+                        <span>راهنمایی</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- بوم نقاشی زنده (Live Synchronized Canvas) -->
+        <div class="canvas-stage-wrapper" id="canvasStageWrapper">
+            <canvas id="drawingCanvas"></canvas>
+
+            <!-- نشانگر تماشای زنده برای حدس‌زننده -->
+            <div id="canvasGuesserLockBadge" class="canvas-lock-badge" style="display: none;">
+                <i class="fa-solid fa-eye"></i>
+                <span>تماشای زنده — کلمه رو تو کادر پایین حدس بزن!</span>
+            </div>
+        </div>
+
+        <!-- ابزارهای نقاش (فقط برای نقاش نمایش داده می‌شود) -->
+        <section id="drawerControlsPanel" class="drawer-controls-panel" style="display: none;">
+            <div class="color-palette-row" id="colorPaletteRow">
+                <button type="button" class="color-swatch active" data-color="#0f172a" style="background: #0f172a;" onclick="selectBrushColor('#0f172a', this)"></button>
+                <button type="button" class="color-swatch" data-color="#ef4444" style="background: #ef4444;" onclick="selectBrushColor('#ef4444', this)"></button>
+                <button type="button" class="color-swatch" data-color="#f97316" style="background: #f97316;" onclick="selectBrushColor('#f97316', this)"></button>
+                <button type="button" class="color-swatch" data-color="#eab308" style="background: #eab308;" onclick="selectBrushColor('#eab308', this)"></button>
+                <button type="button" class="color-swatch" data-color="#22c55e" style="background: #22c55e;" onclick="selectBrushColor('#22c55e', this)"></button>
+                <button type="button" class="color-swatch" data-color="#06b6d4" style="background: #06b6d4;" onclick="selectBrushColor('#06b6d4', this)"></button>
+                <button type="button" class="color-swatch" data-color="#3b82f6" style="background: #3b82f6;" onclick="selectBrushColor('#3b82f6', this)"></button>
+                <button type="button" class="color-swatch" data-color="#8b5cf6" style="background: #8b5cf6;" onclick="selectBrushColor('#8b5cf6', this)"></button>
+                <button type="button" class="color-swatch" data-color="#ec4899" style="background: #ec4899;" onclick="selectBrushColor('#ec4899', this)"></button>
+                <button type="button" class="color-swatch" data-color="#854d0e" style="background: #854d0e;" onclick="selectBrushColor('#854d0e', this)"></button>
+                <button type="button" class="color-swatch" data-color="#94a3b8" style="background: #94a3b8;" onclick="selectBrushColor('#94a3b8', this)"></button>
+                <button type="button" class="color-swatch white-swatch" data-color="#ffffff" style="background: #ffffff;" onclick="selectBrushColor('#ffffff', this)"></button>
+            </div>
+
+            <div class="brush-tools-row">
+                <div class="brush-sizes-group">
+                    <button type="button" class="size-btn" data-size="3" onclick="selectBrushSize(3, this)" title="قلم نازک">
+                        <span class="size-dot" style="width: 5px; height: 5px;"></span>
+                    </button>
+                    <button type="button" class="size-btn active" data-size="6" onclick="selectBrushSize(6, this)" title="قلم متوسط">
+                        <span class="size-dot" style="width: 9px; height: 9px;"></span>
+                    </button>
+                    <button type="button" class="size-btn" data-size="12" onclick="selectBrushSize(12, this)" title="قلم ضخیم">
+                        <span class="size-dot" style="width: 14px; height: 14px;"></span>
+                    </button>
+                    <button type="button" class="size-btn" data-size="22" onclick="selectBrushSize(22, this)" title="قلم درشت">
+                        <span class="size-dot" style="width: 18px; height: 18px;"></span>
+                    </button>
+                </div>
+
+                <div class="tool-actions-group">
+                    <button type="button" class="tool-action-btn active" id="penToolBtn" onclick="activatePenTool()" title="قلم نقاشی">
+                        <i class="fa-solid fa-paintbrush"></i>
+                    </button>
+                    <button type="button" class="tool-action-btn" id="eraserToolBtn" onclick="activateEraserTool()" title="پاک‌کن">
+                        <i class="fa-solid fa-eraser"></i>
+                    </button>
+                    <button type="button" class="tool-action-btn" onclick="undoLastStroke()" title="برگشت آخرین خط">
+                        <i class="fa-solid fa-rotate-left"></i>
+                    </button>
+                    <button type="button" class="tool-action-btn danger" onclick="clearEntireCanvas(true)" title="پاک کردن کل صفحه">
+                        <i class="fa-regular fa-trash-can"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== باکس لیست دائمی حدس‌ها (مشترک برای هر دو نفر: نقاش و حدس‌زننده) ==================== -->
+        <section class="guesses-feed-section" id="guessesFeedSection">
+            <div class="guesses-feed-header">
+                <span><i class="fa-regular fa-comments"></i> لیست حدس‌های این راند</span>
+                <span id="guessesCountBadge" class="guesses-count-badge">۰ حدس</span>
+            </div>
+
+            <!-- لیست اسکرول‌شونده دائمی حدس‌ها -->
+            <div class="guesses-feed-list" id="guessesFeedList">
+                <div class="guesses-empty-text">هنوز حدسی زده نشده... منتظر اولین حدس! 🎯</div>
+            </div>
+
+            <!-- کادر تایپ حدس (فقط برای حدس‌زننده فعال و نمایان است) -->
+            <div class="guess-input-row" id="guesserInputRow" style="display: none;">
+                <input type="text" id="guessWordInput" class="guess-input" placeholder="حدست رو اینجا بنویس و اینتر بزن..." autocomplete="off" enterkeyhint="send">
+                <button type="button" id="submitGuessBtn" class="guess-submit-btn" onclick="submitWordGuess()">
+                    <span>ثبت حدس</span>
+                    <i class="fa-solid fa-paper-plane"></i>
+                </button>
+            </div>
+        </section>
+
+    </main>
+
+</div>
+
+<!-- ==================== مدال پایان هر راند (با انتقال خودکار به کلمه و نوبت بعدی) ==================== -->
+<div id="roundResultModal" class="game-modal-overlay">
+    <div class="game-modal-card">
+        <div class="round-modal-icon" id="roundModalIcon">🎉</div>
+        <h3 class="round-modal-title" id="roundModalTitle">آفرین! درست حدس زدی!</h3>
+        <p class="round-modal-subtitle" id="roundModalSubtitle">امتیاز این راند ثبت شد</p>
+
+        <div class="revealed-word-box">
+            <span>کلمه این راند:</span>
+            <strong id="roundRevealedWord">...</strong>
+        </div>
+
+        <div class="round-points-earned" id="roundPointsBadge">+۳ امتیاز</div>
+
+        <div class="auto-next-box">
+            <div class="auto-next-progress">
+                <div id="autoNextFill" class="auto-next-fill"></div>
+            </div>
+            <span id="autoNextCountdownText" class="auto-next-text">رفتن خودکار به کلمه بعدی و تعویض نوبت...</span>
+        </div>
+
+        <button type="button" id="nextRoundBtn" class="primary-game-btn" onclick="proceedToNextRound()">
+            <span>همین الان بریم راند بعدی!</span>
+            <i class="fa-solid fa-arrow-left"></i>
+        </button>
+        <button type="button" class="secondary-game-btn danger-text" onclick="endCurrentMatch()">
+            <i class="fa-solid fa-power-off"></i>
+            <span>اتمام کامل بازی و برگشت به لابی</span>
+        </button>
+    </div>
+</div>
+
+<!-- ==================== مدال جشن قهرمانی کل دست (Match Winner Modal) ==================== -->
+<div id="matchWinnerModal" class="game-modal-overlay">
+    <div class="game-modal-card winner-card">
+        <div class="winner-crown-icon"><i class="fa-solid fa-crown"></i></div>
+        <h2 class="winner-modal-title" id="winnerModalTitle">قهرمان این دست! 🏆</h2>
+        <p class="winner-modal-sub" id="winnerModalSub">رسید به سقف امتیاز و برنده شد!</p>
+
+        <div class="final-score-box">
+            <div class="final-score-col">
+                <span>مهدی</span>
+                <strong id="finalScoreMahdi">0</strong>
+            </div>
+            <div class="final-score-sep">:</div>
+            <div class="final-score-col">
+                <span>پارمیس</span>
+                <strong id="finalScoreParmis">0</strong>
+            </div>
+        </div>
+
+        <div class="updated-history-note" id="updatedHistoryNote">
+            ۱ برد به تابلو افتخارات کل تاریخ اضافه شد ✨
+        </div>
+
+        <div class="winner-modal-actions">
+            <button type="button" class="primary-game-btn" onclick="returnToLobbyFromWinner()">
+                <i class="fa-solid fa-rotate"></i>
+                <span>بازگشت به اتاق انتظار (دست جدید)</span>
+            </button>
+            <button type="button" class="secondary-game-btn" onclick="goBackHome()">
+                <span>برگشت به صفحه اصلی برنامه</span>
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- کتابخانه سبک Supabase v2 + نقطه ورود ماژولار بازی -->
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script type="module" src="game-draw.js"></script>
+</body>
+</html>
