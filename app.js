@@ -245,7 +245,7 @@ if (emojiPane) {
 
 // ==================== باز کردن وب‌سایت دنیای پارمیس ====================
 window.openParmisWorld = function() {
-    window.open('https://willowy-bombolone-b6369d.netlify.app/', '_blank', 'noopener,noreferrer');
+    window.open('https://parmisdars25.github.io/parmisworld/', '_blank', 'noopener,noreferrer');
 };
 
 // ==================== فرمت‌دهی هوشمند تاریخ برای جداکننده پیام‌ها ====================
