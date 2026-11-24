@@ -1,5 +1,5 @@
-// ==================== Service Worker — ParmisApp (نسخه ۲۰.۲ — آماده برای PWABuilder و APK اندروید) ====================
-const CACHE_NAME = 'parmisapp-static-v20-3';
+// ==================== Service Worker — ParmisApp (نسخه ۲۰.۴ — آماده برای PWABuilder و APK اندروید) ====================
+const CACHE_NAME = 'parmisapp-static-v20-4';
 const CORE_ASSETS = [
     './',
     './index.html',
@@ -93,7 +93,7 @@ self.addEventListener('fetch', (event) => {
 
     if (url.origin !== self.location.origin) return;
 
-    const networkUpdate = fetch(req)
+    const networkUpdate = fetch(req, { cache: 'no-cache' })
         .then((networkRes) => {
             if (networkRes && networkRes.ok && networkRes.type === 'basic') {
                 const copy = networkRes.clone();

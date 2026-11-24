@@ -226,6 +226,7 @@ let brushColor = '#0f172a';
 let brushSize = 6;
 let isEraserMode = false;
 
+const MAX_STROKES = 250;
 let isDrawing = false;
 let strokesList = [];
 let activeStroke = null;
@@ -233,6 +234,15 @@ let lastBroadcastTime = 0;
 let pendingBroadcastTimer = null;
 let lastDbCanvasSyncTime = 0;
 let pendingDbCanvasTimer = null;
+
+// شمارنده ترتیبی و صف ذخیره متوالی برای جلوگیری کامل از پریدن یا بازنویسی شدن نقاشی‌ها
+let localCanvasSeq = 0;
+let hasLocalCanvasChangesForRound = false;
+let isDbCanvasSaving = false;
+let pendingDbCanvasRoundId = null;
+let lastAppliedCanvasRoundId = null;
+let lastAppliedCanvasSeq = -1;
+let lastAppliedCanvasUpdatedAt = 0;
 
 let gameRealtimeChannel = null;
 let isChannelSubscribed = false;
@@ -302,11 +312,39 @@ async function replaceRoomState(fullState) {
     return fullState;
 }
 
-async function saveCanvasStateToDb(roundId, strokes) {
+function extractRoundTimestamp(roundId) {
+    if (!roundId || typeof roundId !== 'string') return 0;
+    const match = roundId.match(/_(\d+)$/);
+    return match ? Number(match[1]) : 0;
+}
+
+function resetCanvasSyncState(roundId = null) {
+    localCanvasSeq = 0;
+    hasLocalCanvasChangesForRound = false;
+    pendingDbCanvasRoundId = null;
+    lastAppliedCanvasRoundId = roundId || null;
+    lastAppliedCanvasSeq = -1;
+    lastAppliedCanvasUpdatedAt = 0;
+    strokesList = [];
+    activeStroke = null;
+    isDrawing = false;
+    if (pendingBroadcastTimer) {
+        clearTimeout(pendingBroadcastTimer);
+        pendingBroadcastTimer = null;
+    }
+    if (pendingDbCanvasTimer) {
+        clearTimeout(pendingDbCanvasTimer);
+        pendingDbCanvasTimer = null;
+    }
+    clearLocalCanvasGraphics();
+}
+
+async function saveCanvasStateToDb(roundId, strokes, seq = localCanvasSeq) {
     await getDb();
     const payload = {
         roundId: roundId || 'default',
-        strokes: Array.isArray(strokes) ? strokes.slice(-85) : [],
+        strokes: Array.isArray(strokes) ? strokes.slice(-MAX_STROKES) : [],
+        seq: Number(seq || 0),
         updatedBy: currentUser,
         updatedAt: Date.now()
     };
@@ -320,14 +358,47 @@ async function saveCanvasStateToDb(roundId, strokes) {
     if (error) throw error;
 }
 
-function broadcastCanvasLive(roundId, strokes) {
+// صف ذخیره متوالی: همیشه فقط یک درخواست به دیتابیس در حال ارسال است تا بسته قدیمی روی جدید بازنویسی نشود
+async function flushDbCanvasSave(roundId) {
+    if (!roundId) return;
+    pendingDbCanvasRoundId = roundId;
+    if (isDbCanvasSaving) return;
+
+    isDbCanvasSaving = true;
+    try {
+        while (pendingDbCanvasRoundId) {
+            const targetRoundId = pendingDbCanvasRoundId;
+            pendingDbCanvasRoundId = null;
+
+            if (currentRoomState && currentRoomState.roundId && targetRoundId !== currentRoomState.roundId) {
+                continue;
+            }
+
+            const seqSnapshot = localCanvasSeq;
+            const strokesSnapshot = strokesList.slice(-MAX_STROKES).map(s => ({
+                color: s.color,
+                size: s.size,
+                points: Array.isArray(s.points) ? [...s.points] : []
+            }));
+
+            await saveCanvasStateToDb(targetRoundId, strokesSnapshot, seqSnapshot);
+        }
+    } catch (e) {
+        console.warn("Canvas DB sync warning:", e);
+    } finally {
+        isDbCanvasSaving = false;
+    }
+}
+
+function broadcastCanvasLive(roundId, strokes, seq = localCanvasSeq) {
     if (!gameRealtimeChannel || !isChannelSubscribed) return;
     gameRealtimeChannel.send({
         type: 'broadcast',
         event: 'canvas_strokes',
         payload: {
             roundId: roundId || 'default',
-            strokes: Array.isArray(strokes) ? strokes.slice(-85) : [],
+            strokes: Array.isArray(strokes) ? strokes.slice(-MAX_STROKES) : [],
+            seq: Number(seq || 0),
             updatedBy: currentUser,
             updatedAt: Date.now()
         }
@@ -464,11 +535,10 @@ window.endCurrentMatch = async function() {
     if (!confirm("میخوای این بازیو ببندیو جفتمون بریم اتاق انتظار؟")) return;
     try {
         isInsideArenaSession = false;
-        strokesList = [];
-        clearLocalCanvasGraphics();
         const endedId = 'ended_' + Date.now();
-        broadcastCanvasLive(endedId, []);
-        await saveCanvasStateToDb(endedId, []);
+        resetCanvasSyncState(endedId);
+        broadcastCanvasLive(endedId, [], 0);
+        await saveCanvasStateToDb(endedId, [], 0);
         await mergeRoomState({
             status: 'lobby',
             readyMahdi: false,
@@ -495,11 +565,10 @@ async function initiateNewMatchFromReady() {
     const duration = (currentRoomState && currentRoomState.roundDuration) ? Number(currentRoomState.roundDuration) : selectedRoundSeconds;
     const targetPts = (currentRoomState && currentRoomState.targetPoints) ? Number(currentRoomState.targetPoints) : selectedTargetPoints;
 
-    strokesList = [];
-    clearLocalCanvasGraphics();
+    resetCanvasSyncState(roundId);
 
-    broadcastCanvasLive(roundId, []);
-    await saveCanvasStateToDb(roundId, []);
+    broadcastCanvasLive(roundId, [], 0);
+    await saveCanvasStateToDb(roundId, [], 0);
 
     await replaceRoomState({
         matchId: matchId,
@@ -702,12 +771,14 @@ function scheduleCanvasSync(forceImmediateDbSave = false) {
     if (!canIDrawNow()) return;
     const now = Date.now();
     const roundId = currentRoomState.roundId || 'default';
+    hasLocalCanvasChangesForRound = true;
+    localCanvasSeq++;
 
     // ۱. ارسال آنی و فوق‌سریع روی Realtime Broadcast (هر ۴۵ میلی‌ثانیه بدون درگیر کردن دیتابیس)
     const doBroadcast = () => {
         lastBroadcastTime = Date.now();
         pendingBroadcastTimer = null;
-        broadcastCanvasLive(roundId, strokesList);
+        broadcastCanvasLive(roundId, strokesList, localCanvasSeq);
     };
     if (forceImmediateDbSave || (now - lastBroadcastTime >= 45)) {
         if (pendingBroadcastTimer) clearTimeout(pendingBroadcastTimer);
@@ -716,17 +787,17 @@ function scheduleCanvasSync(forceImmediateDbSave = false) {
         pendingBroadcastTimer = setTimeout(doBroadcast, 45);
     }
 
-    // ۲. ذخیره پشتیبان در دیتابیس (هنگام برداشتن قلم یا هر ۷۰۰ میلی‌ثانیه برای بازیابی در صورت رفرش صفحه)
+    // ۲. ذخیره پشتیبان در دیتابیس به‌صورت صف متوالی (هر ۷۵۰ میلی‌ثانیه یا لحظه برداشتن قلم)
     const doDbSave = () => {
         lastDbCanvasSyncTime = Date.now();
         pendingDbCanvasTimer = null;
-        saveCanvasStateToDb(roundId, strokesList).catch(() => {});
+        flushDbCanvasSave(roundId);
     };
-    if (forceImmediateDbSave || (now - lastDbCanvasSyncTime >= 700)) {
+    if (forceImmediateDbSave || (now - lastDbCanvasSyncTime >= 750)) {
         if (pendingDbCanvasTimer) clearTimeout(pendingDbCanvasTimer);
         doDbSave();
     } else if (!pendingDbCanvasTimer) {
-        pendingDbCanvasTimer = setTimeout(doDbSave, 700);
+        pendingDbCanvasTimer = setTimeout(doDbSave, 750);
     }
 }
 
@@ -741,6 +812,9 @@ function handlePointerStart(e) {
         points: [pt]
     };
     strokesList.push(activeStroke);
+    if (strokesList.length > MAX_STROKES) {
+        strokesList = strokesList.slice(-MAX_STROKES);
+    }
     redrawAllStrokes();
     scheduleCanvasSync(false);
 }
@@ -751,7 +825,7 @@ function handlePointerMove(e) {
     const pt = getNormalizedPoint(e);
     const prev = activeStroke.points[activeStroke.points.length - 1];
     const dist = Math.hypot(pt.x - prev.x, pt.y - prev.y);
-    if (dist < 0.004) return;
+    if (dist < 0.005) return;
     activeStroke.points.push(pt);
     redrawAllStrokes();
     scheduleCanvasSync(false);
@@ -772,6 +846,7 @@ if (drawingCanvas) {
     drawingCanvas.addEventListener('touchstart', handlePointerStart, { passive: false });
     drawingCanvas.addEventListener('touchmove', handlePointerMove, { passive: false });
     window.addEventListener('touchend', handlePointerEnd);
+    window.addEventListener('touchcancel', handlePointerEnd);
 }
 
 // ==================== ابزارهای نقاش ====================
@@ -833,12 +908,11 @@ window.changeSecretWord = async function() {
     used.push(newWord);
 
     const newRoundId = 'rnd_' + Date.now();
-    strokesList = [];
-    clearLocalCanvasGraphics();
+    resetCanvasSyncState(newRoundId);
 
     try {
-        broadcastCanvasLive(newRoundId, []);
-        await saveCanvasStateToDb(newRoundId, []);
+        broadcastCanvasLive(newRoundId, [], 0);
+        await saveCanvasStateToDb(newRoundId, [], 0);
         await mergeRoomState({
             roundId: newRoundId,
             secretWord: newWord,
@@ -1029,11 +1103,10 @@ window.proceedToNextRound = async function() {
         const duration = latest.roundDuration || 120;
         const nextRoundId = 'rnd_' + nowMs;
 
-        strokesList = [];
-        clearLocalCanvasGraphics();
+        resetCanvasSyncState(nextRoundId);
 
-        broadcastCanvasLive(nextRoundId, []);
-        await saveCanvasStateToDb(nextRoundId, []);
+        broadcastCanvasLive(nextRoundId, [], 0);
+        await saveCanvasStateToDb(nextRoundId, [], 0);
 
         await mergeRoomState({
             status: 'playing',
@@ -1362,23 +1435,89 @@ function renderRoomUI(roomData) {
 
 function handleIncomingRoomState(data) {
     if (!data || typeof data !== 'object') return;
+
+    // جلوگیری از برگشت ناخواسته به راند قبلی در صورت رسیدن پکت تاخیری از شبکه
+    if (
+        currentRoomState &&
+        data.status !== 'lobby' &&
+        currentRoomState.status !== 'lobby' &&
+        currentRoomState.matchId &&
+        data.matchId === currentRoomState.matchId &&
+        currentRoomState.roundId &&
+        data.roundId &&
+        data.roundId !== currentRoomState.roundId
+    ) {
+        const currentTs = extractRoundTimestamp(currentRoomState.roundId);
+        const incomingTs = extractRoundTimestamp(data.roundId);
+        if (currentTs > 0 && incomingTs > 0 && incomingTs < currentTs) {
+            return;
+        }
+    }
+
     const prevRoundId = currentRoomState ? currentRoomState.roundId : null;
     currentRoomState = data;
 
+    if (data.status === 'lobby') {
+        hasLocalCanvasChangesForRound = false;
+    }
+
     if (data.roundId && data.roundId !== prevRoundId) {
         lastRenderedGuessCount = 0;
-        strokesList = [];
-        clearLocalCanvasGraphics();
+        resetCanvasSyncState(data.roundId);
     }
     renderRoomUI(data);
 }
 
-function handleIncomingCanvasState(cData) {
+function handleIncomingCanvasState(cData, source = 'db') {
     if (!cData || typeof cData !== 'object') return;
-    if (currentRoomState && cData.roundId && cData.roundId !== currentRoomState.roundId) return;
-    if (isDrawing && cData.updatedBy === currentUser) return;
+    const incomingRoundId = cData.roundId || 'default';
 
-    strokesList = Array.isArray(cData.strokes) ? cData.strokes : [];
+    if (currentRoomState && currentRoomState.roundId && incomingRoundId !== currentRoomState.roundId) {
+        return;
+    }
+
+    const amActiveDrawer = canIDrawNow();
+
+    // ۱. وقتی نوبت نقاشی خودت هست، بوم محلی تو مرجع اصلیه و اکوهای تاخیری دیتابیس هرگز نباید روش بازنویسی بشن
+    if (amActiveDrawer) {
+        const canRestoreAfterRefresh = (
+            source === 'initial' &&
+            !hasLocalCanvasChangesForRound &&
+            strokesList.length === 0 &&
+            Array.isArray(cData.strokes) &&
+            cData.strokes.length > 0
+        );
+        if (!canRestoreAfterRefresh) {
+            return;
+        }
+        strokesList = cData.strokes.slice(-MAX_STROKES);
+        const restoredSeq = Number(cData.seq || 0);
+        localCanvasSeq = Math.max(localCanvasSeq, restoredSeq);
+        lastAppliedCanvasRoundId = incomingRoundId;
+        lastAppliedCanvasSeq = restoredSeq;
+        lastAppliedCanvasUpdatedAt = Number(cData.updatedAt || 0);
+        redrawAllStrokes();
+        return;
+    }
+
+    // ۲. برای حدس‌زننده: بسته‌های قدیمی‌تر (مثلاً اکوهای تاخیری دیتابیس بعد از Broadcast آنی) رد میشن
+    const incomingSeq = (typeof cData.seq === 'number' && !isNaN(cData.seq)) ? cData.seq : -1;
+    const incomingTs = Number(cData.updatedAt || 0);
+
+    if (lastAppliedCanvasRoundId === incomingRoundId) {
+        if (incomingSeq >= 0 && lastAppliedCanvasSeq >= 0) {
+            if (incomingSeq < lastAppliedCanvasSeq) return;
+            if (incomingSeq === lastAppliedCanvasSeq && source !== 'initial') return;
+        } else if (incomingTs > 0 && lastAppliedCanvasUpdatedAt > 0 && incomingTs < lastAppliedCanvasUpdatedAt) {
+            return;
+        }
+    }
+
+    lastAppliedCanvasRoundId = incomingRoundId;
+    if (incomingSeq >= 0) lastAppliedCanvasSeq = incomingSeq;
+    if (incomingTs > 0) lastAppliedCanvasUpdatedAt = incomingTs;
+
+    strokesList = Array.isArray(cData.strokes) ? cData.strokes.slice(-MAX_STROKES) : [];
     redrawAllStrokes();
 }
 
@@ -1536,7 +1675,7 @@ function applyStatsUI(sRow) {
     document.getElementById('totalMatchesPlayed').textContent = `${tot} بازی ثبت‌شده`;
 }
 
-async function refreshAllGameData() {
+async function refreshAllGameData(isInitialLoad = false) {
     try {
         await getDb();
         const [usersRes, statsRes, roomsRes] = await Promise.all([
@@ -1563,7 +1702,7 @@ async function refreshAllGameData() {
         }
 
         if (canvasRow && canvasRow.state) {
-            handleIncomingCanvasState(canvasRow.state);
+            handleIncomingCanvasState(canvasRow.state, isInitialLoad ? 'initial' : 'poll');
         }
     } catch (err) {
         console.error("Game initial refresh error:", err);
@@ -1585,7 +1724,7 @@ function setupGameRealtime() {
         // ۱. دریافت آنی خطوط نقاشی از طریق Broadcast (بدون لگ)
         .on('broadcast', { event: 'canvas_strokes' }, ({ payload }) => {
             if (payload) {
-                handleIncomingCanvasState(payload);
+                handleIncomingCanvasState(payload, 'broadcast');
             }
         })
         // ۲. دریافت تغییرات وضعیت اتاق و بوم ذخیره‌شده
@@ -1595,7 +1734,7 @@ function setupGameRealtime() {
             if (row.id === 'drawRoom' && row.state) {
                 handleIncomingRoomState(row.state);
             } else if (row.id === 'drawCanvas' && row.state) {
-                handleIncomingCanvasState(row.state);
+                handleIncomingCanvasState(row.state, 'db');
             }
         })
         // ۳. دریافت تغییرات تابلو افتخارات کل تاریخ
@@ -1649,7 +1788,7 @@ function initDrawGameApp() {
     ensureSupabaseReady().then((client) => {
         sb = client;
         setGamePresence(true);
-        refreshAllGameData();
+        refreshAllGameData(true);
         setupGameRealtime();
         startGameFallbackSyncIfNeeded();
     }).catch((err) => {
